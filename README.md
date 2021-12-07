@@ -1,2 +1,2 @@
-# yuin
-YUInformatics yuin.yeditepe.edu.tr websitesi
+# yuin.yeditepe.edu.tr (Codename YUIN Club)
+YUInformatics yuin.yeditepe.edu.tr websitesi YUIN Club (yuin.yeditepe.edu.tr) 2020 yılında Mart - Haziran ayları arasında Emrecan Öksüm tarafından YUINFORMATICS (Bilişim Kulübü) için, kulübün ihtiyaçlarını karşılaması için kodlanmıştır. Frontend için Colorlib'e ait Unica HTML5 teması kullanılmış, backend ise tamamen Emrecan ÖKSÜM tarafından kodlanmıştır. Core PHP 7 ile kodlanan bu projenin geliştirilmesinin sürdürülebilirliği için open source edilmesi kararlaştırılmıştır ve katılıma açıktır.
