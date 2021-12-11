@@ -1,0 +1,1 @@
+<h2 style="color:red;"><b>HATA!</b> Bir sorun meydana geldi! Eğer bu mesajı uzun bir süredir görüyorsanız lütfen herhangi bir yönetim kurulu üyesine bu hatayı aldığınızı bildirin.</h2>

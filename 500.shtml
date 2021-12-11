@@ -1,0 +1,6 @@
+<h2 style="color:red;"><b>HATA!</b> Bir sorun meydana geldi! Eğer bu mesajı uzun bir süredir görüyorsanız lütfen herhangi bir yönetim kurulu üyesine bu hatayı aldığınızı alttaki detaylarla birlikte bildirin.</h2>
+<h4>Talep bilgileriniz: </h4>
+<p>Öneren: <u><i><!--#echo var="HTTP_REFERER" --></i></u></p>
+<p>Talep edenin kullandığı tarayıcı: <u><i><!--#echo var="HTTP_USER_AGENT" --></i></u></p>
+<p>Talep edilen adres: <u><i><!--#echo var="REQUEST_URI" --></i></u></p>
+<p>Talep edenin IP Adresi: <u><i><!--#echo var="REMOTE_ADDR" --></i></u></p>
