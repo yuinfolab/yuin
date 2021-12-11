@@ -231,7 +231,6 @@ unset($pdo);
 				
 			    <?php
 			    
-			    // Amını sikeyim CSS
 			    if(!isset($_GET['getSubgPageId'])) {
 			        
 			        echo '<div class="row">';
@@ -274,7 +273,6 @@ unset($pdo);
 			        <?php
 			    }
 			    
-			    // Amını sikeyim CSS x2
 			    if(!isset($_GET['getSubgPageId'])) {
 			        
 			        echo '</div>';
