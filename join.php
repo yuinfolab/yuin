@@ -305,7 +305,7 @@ unset($pdo);
 					<h5>Her şey senin için. Bilişim Kulübü'nün sunduğu tüm imkanlardan yararlanmak için hemen aramıza katıl :)</h5>
 					<br>
 					<p style="margin:20px;">OBS ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri OBS üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer OBS şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi elle girerek manuel olarak kaydolabilmektesiniz.</p>
-					<!--<a href="fastjoin.php">--><button class="site-btn" onclick="alert('OBS ile hızlı giriş hizmetini sağlayabilmemiz için Yeditepe BiM ile ortak çalışmalar devam etmektedir.');">OBS ile giriş yaparak hızlı katıl</button><!--</a>-->
+					<!--<a href="fastjoin.php">--><button class="site-btn" onclick="alert('AKADEMİ7 ile hızlı giriş hizmetini sağlayabilmemiz için Yeditepe BiM ile ortak çalışmalar devam etmektedir.');">AKADEMİ7 ile giriş yaparak hızlı katıl</button><!--</a>-->
 					<a href="#form"><button class="site-btn">Manuel katılım sistemi</button></a>
 				</div>
 				<div class="contact-form spad pb-0">
