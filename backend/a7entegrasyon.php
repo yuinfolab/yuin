@@ -28,7 +28,17 @@
 *
 *		Üstte belirtilen şartlara uyduğunuz sürece modülümüzü kendi sitelerinizde
 *		Bilgi İşlem departmanının da izni olması koşulu ile kullanabilirsiniz.
-*
+*		
+*		KULLANIM ŞEKLİ:
+*		
+*		$user = 'U2018XXXXXXX'; // Yeditepe öğrenci numaranız
+*		$pass = 'akademik7Sifrem123'; // Yeditepe A7 öğrenci şifreniz
+*		
+*		$a7class = new A7_Entegrasyon($user, $pass);
+*		$kisiselBilgiler = $a7class->tryLogin();
+*		exit($kisiselBilgiler); // isim, soyisim, telno, eposta, fakulte, bolum gibi kisisel bilgileri JSON formatında getirir.
+*		// Eger bir sorun oluşursa (boolean) false döndürür.
+*		
 */
 
 if(!defined("YUIN"))
