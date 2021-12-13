@@ -40,9 +40,9 @@ class A7_Entegrasyon {
 	const A7_NAMESURNAME_API = 'https://api7.yeditepe.edu.tr/user/identity/true/';
 	const A7_PHONE_EMAIL_API = 'https://api7.yeditepe.edu.tr/user/cm/true/';
 	const A7_STDTEMAIL_API = 'https://api7.yeditepe.edu.tr/student/email-info/true/';
-	const A7_EDUCATION_API = 'https://api7.yeditepe.edu.tr/student/educations/true/';
+	const A7_EDUCATION_API = 'https://api7.yeditepe.edu.tr/user/all-educations/true/';
 	
-	const WHERE_IS_MY_COOKIEJAR = '/home/yuinyeditepe/tmp/A7_LOGIN_API_COOKIES-' . md5(time() . $_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']) . '-';
+	const WHERE_IS_MY_COOKIEJAR = '/home/yuinyeditepe/tmp/A7_LOGIN_API_COOKIES-';
 	const VERBOSITY = false; /* Prodüksüyon kullanımında (boolean) false olması gereklidir. */
 	
 	private $user;
@@ -73,7 +73,7 @@ class A7_Entegrasyon {
 	private function getCookieJar() {
 		
 		$user = $this->user;
-		$cookiejar = self::WHERE_IS_MY_COOKIEJAR . $user;
+		$cookiejar = self::WHERE_IS_MY_COOKIEJAR . md5(time() . $_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']) . '-' . $user;
 		return $cookiejar;
 	}
 	
@@ -109,6 +109,7 @@ class A7_Entegrasyon {
 		
 		$headers = [
 			'Origin: https://a7.yeditepe.edu.tr',
+			'Content-Type: application/json; charset=utf-8'
 		];
 		
 		if($auth) {
@@ -118,12 +119,15 @@ class A7_Entegrasyon {
 		
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		
+		// cURL nedense api7.yeditepe.edu.tr'nin SSL sertifikasını doğrulayamıyor.
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, $post);
-		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookiejar);
-		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar);
+		/*curl_setopt($ch, CURLOPT_COOKIEJAR, $cookiejar);
+		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiejar);*/
 		curl_setopt($ch, CURLOPT_REFERER, 'https://a7.yeditepe.edu.tr/');
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
@@ -140,7 +144,7 @@ class A7_Entegrasyon {
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		
 		if(curl_errno($ch) == 0) {
-			$this->logger('Building postfields...');
+			$this->logger('Sending query...');
 			$ch_res = curl_exec($ch);
 			curl_close($ch);
 			return $ch_res;
@@ -152,21 +156,22 @@ class A7_Entegrasyon {
 		}
 	}
 	
-	public static function tryLogin() {
+	public function tryLogin() {
 		
 		$this->logger('Starting process...');
 		
-		// Cookiejar aç
-		$this->createCookieJar();
+		// Cookiejar aç - Akademik7 sistemi cookie girmiyor. Eğer girmeye başlarsa burayı uncomment ederek kolayca uyumlu hale getirebilirsiniz.
+		//$this->createCookieJar();
 		
 		// A7 login başlangıç
 		$loginPayload = [
-			'user' => $this->user;
-			'pass' => $this->pass;
+			'user' => $this->user,
+			'pass' => $this->pass,
 			'rememberMe' => false
 		];
 		
 		$a7call1 = $this->httpRequest(self::A7_LOGIN_API, $loginPayload, 'json-post', 30);
+		
 		if(!strpos($a7call1, 'ta7')) {
 			
 			$this->logger('Token not found in the initial response!');
@@ -194,6 +199,7 @@ class A7_Entegrasyon {
 		}
 		
 		$a7token_jwt = @base64_decode($a7token_piece[0]);
+		$a7token_jwt = @json_decode($a7token_jwt, true);
 		if(!isset($a7token_jwt['alg']) || $a7token_jwt['typ'] != 'JWT') {
 			
 			$this->logger('Invalid JWT Token!');
@@ -233,12 +239,12 @@ class A7_Entegrasyon {
 		$phoneemail = $this->httpRequest(self::A7_PHONE_EMAIL_API . $stdtinfo, null, false, 30, $authHeader);
 		$phoneemailfound = true;
 		
-		if(!strpos($phoneemail, 'phoneNo')) {
+		if(!strpos($phoneemail, 'phone')) {
 			$phoneemailfound = false;
 			$phone = '05000000000';
 		}
 		
-		if(!strpos($phoneemail, 'email')) {
+		if(!strpos($phoneemail, 'mail')) {
 			$phoneemailfound = false;
 			// Eğer öğrenci epostası kayıtlı değilse okul öğrenci eposta adresini çek
 			$stdemail = $this->httpRequest(self::A7_STDTEMAIL_API . $stdtinfo, null, false, 30, $authHeader);
@@ -266,15 +272,16 @@ class A7_Entegrasyon {
 			$phoneemail = @json_decode($phoneemail, true);
 			$phoneemail = @$phoneemail[0];
 			
-			$phone = $phoneemail['phoneNo'];
-			$email = $phoneemail['email'];
+			$phone = $phoneemail['phone'];
+			$email = $phoneemail['mail'];
 		}
 		unset($phoneemail);
 		// Telefon numarası Eposta adresi çek bitiş
 		
 		// Eğitim bilgileri çek başlangıç
 		$egitimbilgi = $this->httpRequest(self::A7_EDUCATION_API . $stdtinfo, null, false, 30, $authHeader);
-		if(!strpos($namesurname, 'unit')) {
+		
+		if(!strpos($egitimbilgi, 'unit')) {
 			
 			$this->logger('Failed to retrieve education information!');
 			return false;
@@ -289,7 +296,7 @@ class A7_Entegrasyon {
 		// Eğitim bilgileri çek bitiş
 		
 		// Depolanan cookieleri yok et
-		$this->breakCookieJar();
+		//$this->breakCookieJar();
 		
 		unset($stdtinfo);
 		unset($a7token);
