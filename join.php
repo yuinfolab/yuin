@@ -38,6 +38,9 @@ require_once "/home/yuinyeditepe/public_html/backend/connect.php";
 // Yardımcı fonksiyonları getir
 require_once "/home/yuinyeditepe/public_html/backend/helpers.php";
 
+// A7 Entegrasyon modülünü getir
+require_once '/home/yuinyeditepe/public_html/backend/a7entegrasyon.php';
+
 // Fakulte listesini getir
 if($stmt = $pdo->prepare("SELECT * FROM fakulteler GROUP BY faculty DESC")) {
         
@@ -54,7 +57,50 @@ $name = "";
 $email = $phonenum = $passverifi = $pass = $department = $faculty = $user = $surname = $name;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-
+    
+    if(isset($_POST['a7login'])) {
+        
+        $user = @$_POST['user'];
+        $pass = @$_POST['pass'];
+        
+        if(empty($user) || empty($pass)) {
+            
+            $ret = ['durum' => false, 'msj' => 'Gecersiz parametre!'];
+            $ret = json_encode($ret);
+            echo $ret;
+            exit;
+        }
+        
+        if($user[1] != '2' || strlen($user) < 11) {
+            
+            $ret = ['durum' => false, 'msj' => 'Gecersiz ogrenci numarasi!'];
+            $ret = json_encode($ret);
+            echo $ret;
+            exit;
+        }
+        
+        /*if(!gRecaptchaVerify($_POST['g-recaptcha-response'])) {
+            
+            $ret = ['durum' => false, 'msj' => 'Google ReCaptcha onay hatasi!'];
+            $ret = json_encode($ret);
+            echo $ret;
+            exit;
+        }*/
+        
+        $a7class = new A7_Entegrasyon($user, $pass);
+        $kisisel = $a7class->tryLogin();
+        if(!strpos($kisisel, 'isim')) {
+            
+            $ret = ['durum' => false, 'msj' => 'Gecersiz bilgiler! Akademik7 hesabiniza giris yapilamadi!'];
+            $ret = json_encode($ret);
+            echo $ret;
+            exit;
+        }
+        
+        echo $kisisel;
+        exit;
+    }
+    
     $name = trim($_POST['name']);
     $surname = trim($_POST['surname']);
     $user = trim($_POST['user']);
@@ -231,6 +277,81 @@ unset($pdo);
 </head>
 <body>
     <script src='https://www.google.com/recaptcha/api.js' async defer ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    
+    function a7formprompt() {
+        
+        document.getElementById("formInfo").innerHTML = "Akademik7 ile katılım formu";
+        document.getElementById("formDesc").innerHTML = "Hızlı kayıt sistemimizi kullanarak kişisel bilgilerinizi manüel olarak doldurmadan otomatik olarak getirtebilirsiniz.";
+        
+        document.getElementById("a7katilim").style.display = "block";
+        document.getElementById("manuelKatilimForm").style.display = "none";
+    }
+    
+    function manuelformprompt() {
+        
+        document.getElementById("formInfo").innerHTML = "Manuel katılım formu";
+        document.getElementById("formDesc").innerHTML = "Hızlı kayıt sistemini kullanmak istemiyorsan buradan kulübümüze kaydolabilirsin.";
+        
+        document.getElementById("a7katilim").style.display = "none";
+        document.getElementById("manuelKatilimForm").style.display = "block";
+    }
+    
+    function parseA7(a7jsondata) {
+        
+        a7jsondata = JSON.parse(a7jsondata);
+        
+        // Bazı parametreleri düzelt
+        var telefonNo = a7jsondata["telno"];
+        telefonNo = "0" + telefonNo;
+        
+        var ogrenciNo = document.getElementById("a7user").value;
+        ogrenciNo = ogrenciNo.substring(1);
+        
+        document.getElementById("name").value = a7jsondata["isim"];
+        document.getElementById("surname").value = a7jsondata["soyisim"];
+        document.getElementById("user").value = ogrenciNo;
+        document.getElementById("fak").value = a7jsondata["fakulte"];
+        document.getElementById("department").value = a7jsondata["bolum"];
+        document.getElementById("phonenum").value = telefonNo;
+        document.getElementById("email").value = a7jsondata["eposta"];
+        
+        document.getElementById("name").readOnly = true;
+        document.getElementById("surname").readOnly = true;
+        document.getElementById("user").readOnly = true;
+        document.getElementById("fak").readOnly = true;
+        document.getElementById("department").readOnly = true;
+        document.getElementById("phonenum").readOnly = true;
+        document.getElementById("email").readOnly = true;
+        
+        manuelformprompt();
+    }
+    
+    $(document).ready(function() {
+        
+    $("#a7submit").click(function(event) {
+        //event.preventDefault();
+        
+        var user = document.getElementById("a7user").value;
+        var pass = document.getElementById("a7pass").value;
+        
+        $.post("join.php",
+        {
+            a7login: true,
+            user: user,
+            pass: pass
+        },
+        function(data,status){
+            if(data.indexOf("isim") != -1) {
+                
+                parseA7(data);
+            }
+        });
+    });
+    });
+    
+    </script>
 	<!-- Page Preloder -->
 	<div id="preloder">
 		<div class="loader"></div>
@@ -304,26 +425,45 @@ unset($pdo);
 					<h3>Aramıza Katıl</h3>
 					<h5>Her şey senin için. Bilişim Kulübü'nün sunduğu tüm imkanlardan yararlanmak için hemen aramıza katıl :)</h5>
 					<br>
-					<p style="margin:20px;">AKADEMİ7 ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri AKADEMİ7 üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer AKADEMİ7 şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi elle girerek manuel olarak kaydolabilmektesiniz.</p>
-					<!--<a href="fastjoin.php">--><button class="site-btn" onclick="alert('AKADEMİ7 ile hızlı giriş hizmetini sağlayabilmemiz için Yeditepe BiM ile ortak çalışmalar devam etmektedir.');">AKADEMİ7 ile giriş yaparak hızlı katıl</button><!--</a>-->
-					<a href="#form"><button class="site-btn">Manuel katılım sistemi</button></a>
+					<p style="margin:20px;">AKADEMİK7 ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri AKADEMİ7 üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer AKADEMİ7 şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi elle girerek manuel olarak kaydolabilmektesiniz.</p>
+					<a href="#form"><button class="site-btn" onclick="a7formprompt()">AKADEMİK7 ile giriş yaparak hızlı katıl</button></a>
+					<a href="#form"><button class="site-btn" onclick="manuelformprompt()">Manuel katılım sistemi</button></a>
 				</div>
 				<div class="contact-form spad pb-0">
 				<div id="form" class="section-title text-center">
-				    <h3>Manuel katılım formu</h3>
-				    <p>Hızlı kayıt sistemini kullanmak istemiyorsan buradan kulübümüze kaydolabilirsin.</p>
+				    <h3 id="formInfo">Manuel katılım formu</h3>
+				    <p id="formDesc">Hızlı kayıt sistemini kullanmak istemiyorsan buradan kulübümüze kaydolabilirsin.</p>
 				</div>
-				<form class="comment-form --contact" method="post">
+				<div style="display: none;" id="a7katilim" class="comment-form --contact">
+				    <center>
+				    <div class="col-lg-4">
+						<input type="text" id="a7user" name="user" placeholder="Öğrenci Numaranız" required>
+					</div>
+					<div class="col-lg-4">
+						<input type="password" id="a7pass" name="pass" placeholder="Akademik7 / OBS Şifreniz" required>
+					</div>
+					<!--<div class="col-lg-4">
+						<center><div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div></center>
+					</div>-->
+					<div class="col-lg-12">
+						<div class="text-center">
+							<br><p><i>Alttaki Kişisel bilgilerimi talep et butonuna tıklayarak üstte belirttiğim Öğrenci Numaram, A7 / OBS şifrem kullanılarak İsim, Soyisim, Telefon numaram, Eposta adresim, Fakültem, Bölümüm gibi kişisel bilgilerimin Akademik7 sistemi üzerinden bu sayfaya aktarılmasını kabul ediyorum.</i></p>
+					        <button style="margin:20px;" id="a7submit" class="site-btn">Kişisel bilgilerimi talep et</button>
+						</div>
+					</div>
+					</center>
+				</div>
+				<form style="display: block;" id="manuelKatilimForm" class="comment-form --contact" method="post">
 					<center>
 					    <p style="color:red;margin:20px;"><?=$error;?></p>
 						<div class="col-lg-4">
-							<input type="text" name="name" placeholder="Adınız" required>
+							<input type="text" id="name" name="name" placeholder="Adınız" required>
 						</div>
 						<div class="col-lg-4">
-							<input type="text" name="surname" placeholder="Soyadınız" required>
+							<input type="text" id="surname" name="surname" placeholder="Soyadınız" required>
 						</div>
 						<div class="col-lg-4">
-							<input type="text" name="user" placeholder="Öğrenci Numaranız" required>
+							<input type="text" id="user" name="user" placeholder="Öğrenci Numaranız" required>
 						</div>
 						<div class="col-lg-4">
 						    <label for="fak">Fakülteniz</label>
@@ -342,7 +482,7 @@ unset($pdo);
                             </select>
 						</div>
 						<div class="col-lg-4">
-							<input type="text" name="department" placeholder="Bölümünüz" required>
+							<input type="text" id="department" name="department" placeholder="Bölümünüz" required>
 						</div>
 						<div class="col-lg-4">
 							<input type="password" name="pass" placeholder="Şifre belirleyin" required>
@@ -351,10 +491,10 @@ unset($pdo);
 							<input type="password" name="passverifi" placeholder="Şifrenizi doğrulayın" required>
 						</div>
 						<div class="col-lg-4">
-							<input type="text" name="phonenum" placeholder="Telefon numaranız" required>
+							<input type="text" id="phonenum" name="phonenum" placeholder="Telefon numaranız" required>
 						</div>
 						<div class="col-lg-4">
-							<input type="email" name="email" placeholder="E-posta adresiniz" required>
+							<input type="email" id="email" name="email" placeholder="E-posta adresiniz" required>
 						</div>
 						<div class="col-lg-4">
 						    <center><div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div></center>
