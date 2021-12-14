@@ -477,7 +477,7 @@ unset($pdo);
                                     echo '<option value="' . $fakulte['faculty'] . '">' . $fakulte['faculty'] . '</option>' . PHP_EOL;
                                 }
                                 
-                                // PHP Bitiş
+                                // PHP Bitiş 
                                 ?>
                             </select>
 						</div>
