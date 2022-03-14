@@ -16,17 +16,6 @@
 *
 */
 
-/*
-
-Bu sayfadan nefret ediyorum keşke hiç eklemeseydim...
-Veritabanında Base64 formatında Text olarak saklanan tüm fotoğrafları tek bir sorgu ile çekip ekrana basmanız gerekli.
-
-Alakasız TRIVIAL INFO veya Fun-Fact:
-Gülhan Hanım bu sayfanın düzeltilmesinde çok ısrarcı oldu. Bende o kadar uzun süre bu sayfayla ilgilenemedim ki Gülhan
-Hanım ismimi unuttu. Bende an itibariyle IT'nin başındaki şahsiyet olarak görevimi icra etmekteyim.
-
-*/
-
 session_start();
 
 define('YUIN',1);
@@ -112,7 +101,7 @@ unset($pdo);
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-	<title>Yeditepe Üniversitesi Bilişim Kulübü | Alt Gruplarımız</title>
+	<title>Yeditepe Üniversitesi Bilişim Kulübü | Galeri</title>
 	<meta charset="UTF-8">
 	<meta name="description" content="Yeditepe Üniversitesi Bilişim Kulübü YUINFORMATICS'e hoş geldiniz!">
 	<meta name="keywords" content="yeditepe bilişim,yuin,yeditepe yuin,bilişim kulübü,bilgisayar kulübü,yuinformatics,informatics yeditepe">
