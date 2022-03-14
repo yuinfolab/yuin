@@ -283,7 +283,7 @@ unset($pdo);
     function a7formprompt() {
         
         document.getElementById("formInfo").innerHTML = "Akademik7 ile katılım formu";
-        document.getElementById("formDesc").innerHTML = "Hızlı kayıt sistemimizi kullanarak kişisel bilgilerinizi manüel olarak doldurmadan otomatik olarak getirtebilirsiniz.";
+        document.getElementById("formDesc").innerHTML = "OBS veya AKADEMİK7 (A7) sistemlerine ait kullanıcı adı ve şifre bilgilerinizi girerek kulübümüze kaydolmanız için gerekli bilgilerin otomatik olarak çekilmesini sağlayabilirsiniz.";
         
         document.getElementById("a7katilim").style.display = "block";
         document.getElementById("manuelKatilimForm").style.display = "none";
@@ -328,6 +328,11 @@ unset($pdo);
         manuelformprompt();
     }
     
+    function parseA7Error() {
+        
+        document.getElementById("a7error").innerHTML = "A7 / OBS Kullanıcı adı hatalı! Lütfen <u>OBS'ye veya A7'ye giriş yaparken girdiğiniz bilgilerin aynısını doğru ve eksiksiz bir şekilde girdiğinizden emin olunuz!</u><br><br>Eğer tüm bilgileriniz eksiksiz ve doğru ise (tekrar kontrol edin), YUInformatics Yönetim Kuruluna bu durumu İletişim sayfasından bildirebilirsiniz.";
+    }
+    
     $(document).ready(function() {
         
     $("#a7submit").click(function(event) {
@@ -346,6 +351,9 @@ unset($pdo);
             if(data.indexOf("isim") != -1) {
                 
                 parseA7(data);
+            }else{
+                
+                parseA7Error();
             }
         });
     });
@@ -430,14 +438,14 @@ unset($pdo);
 					<a href="#form"><button class="site-btn" onclick="manuelformprompt()">Manuel katılım sistemi</button></a>
 				</div>
 				<div class="contact-form spad pb-0">
-				<div id="form" class="section-title text-center">
-				    <h3 id="formInfo">Manuel katılım formu</h3>
-				    <p id="formDesc">Hızlı kayıt sistemini kullanmak istemiyorsan buradan kulübümüze kaydolabilirsin.</p>
-				</div>
 				<div style="display: none;" id="a7katilim" class="comment-form --contact">
+				    <div id="form" class="section-title text-center">
+				        <h3 id="formInfo">Akademik7 ile katılım formu</h3>
+				        <p id="formDesc">OBS veya AKADEMİK7 (A7) sistemlerine ait kullanıcı adı ve şifre bilgilerinizi girerek kulübümüze kaydolmanız için gerekli bilgilerin otomatik olarak çekilmesini sağlayabilirsiniz.</p>
+				    </div>
 				    <center>
 				    <div class="col-lg-4">
-						<input type="text" id="a7user" name="user" placeholder="Öğrenci Numaranız" required>
+						<input type="text" id="a7user" name="user" placeholder="Akademik7 / OBS Kullanıcı Adı" required>
 					</div>
 					<div class="col-lg-4">
 						<input type="password" id="a7pass" name="pass" placeholder="Akademik7 / OBS Şifreniz" required>
@@ -448,12 +456,17 @@ unset($pdo);
 					<div class="col-lg-12">
 						<div class="text-center">
 							<br><p><i>Alttaki Kişisel bilgilerimi talep et butonuna tıklayarak üstte belirttiğim Öğrenci Numaram, A7 / OBS şifrem kullanılarak İsim, Soyisim, Telefon numaram, Eposta adresim, Fakültem, Bölümüm gibi kişisel bilgilerimin Akademik7 sistemi üzerinden bu sayfaya aktarılmasını kabul ediyorum.</i></p>
+					        <h5 style="color:red;"><b id="a7error"></b></h5>
 					        <button style="margin:20px;" id="a7submit" class="site-btn">Kişisel bilgilerimi talep et</button>
 						</div>
 					</div>
 					</center>
 				</div>
-				<form style="display: block;" id="manuelKatilimForm" class="comment-form --contact" method="post">
+				<form style="display: none;" id="manuelKatilimForm" class="comment-form --contact" method="post">
+					<div id="form" class="section-title text-center">
+				        <h3 id="formInfo">Manuel katılım formu</h3>
+				        <p id="formDesc">Hızlı kayıt sistemini kullanmak istemiyorsan buradan kulübümüze kaydolabilirsin.</p>
+				    </div>
 					<center>
 					    <p style="color:red;margin:20px;"><?=$error;?></p>
 						<div class="col-lg-4">
@@ -477,7 +490,7 @@ unset($pdo);
                                     echo '<option value="' . $fakulte['faculty'] . '">' . $fakulte['faculty'] . '</option>' . PHP_EOL;
                                 }
                                 
-                                // PHP Bitiş 
+                                // PHP Bitiş
                                 ?>
                             </select>
 						</div>
