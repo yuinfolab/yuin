@@ -26,6 +26,17 @@ include "/home/yuinyeditepe/public_html/backend/connect.php";
 // Yardımcı fonksiyonları getir
 require_once "/home/yuinyeditepe/public_html/backend/helpers.php";
 
+// Şifreleri getir
+require_once "/home/yuinyeditepe/public_html/protected/protected_constants.php";
+
+// Göstermelik
+$yuinEmailSender = YUIN_SMTP_ACCT;
+$yuinEmailPass = YUIN_SMTP_PASS;
+$yuinEmailSMTP = YUIN_SMTP;
+
+$yuinEmailPassLen = strlen($yuinEmailPass) - 4;
+$yuinEmailPassMasked = $yuinEmailPass[0] . $yuinEmailPass[1] . $yuinEmailPass[2] . $yuinEmailPass[3] . str_repeat('*', $yuinEmailPassLen);
+
 $login = 0;
 
 if(isset($_SESSION['login']) && $_SESSION['login'] === 1) {
@@ -787,7 +798,8 @@ unset($pdo);
 				    <center><h6><?=$_GET['viewActAttendance'];?> numaralı etkinliğe katılan üyeler</h6>
 				    <form id="epostaForm" class="comment-form --contact" method="post" enctype="multipart/form-data" style="display: none;">
 				        <input type="hidden" name="action" value="sendMail">
-				        <h5>Katılacak tüm üyelere toplu eposta gönder</h5>
+				        <h5>Katılacak tüm üyelere toplu eposta gönder</h5><br>
+				        <h6>DİKKAT! Gönderilecek eposta, <b><?=$yuinEmailSender;?></b> eposta hesabının, <b><?=$yuinEmailPassMasked;?></b> şifresi ile <b><?=$yuinEmailSMTP;?></b> SMTP sunucusu üzerinden gönderilecektir. Eğer bilgiler güncel değilse <b>protected/protected_constants.php</b> dosyasından güncelleyiniz!</h6>
 				        <div class="col-lg-6">    
 				            <div style="display: none;" id="epostaGonderiWarningTag" class="alert alert-warning">
                                 <p id="mailAlertBox">Tüm katılımcılara eposta gönderiliyor. Her eposta 5 saniyede bir gönderilir. Lütfen hedef sayıya ulaşana kadar sayfadan ayrılmayınız.<br><b>Bu işlem esnasında tarayıcınız 5 saniye kadar süreyle donabilir, lütfen sayfayı terk etmeyin ya da durdurmayın.</b><br></p>

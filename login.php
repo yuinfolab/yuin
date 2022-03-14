@@ -163,6 +163,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 unset($stmt);
 unset($pdo);
 
+if(isset($_GET['kurumdisi'])) {
+    
+    $kurumdisi = true;
+}else{
+    
+    $kurumdisi = false;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -280,17 +288,17 @@ unset($pdo);
 				
 				<center>
 				    <div class="col-lg-6">
-					    <input type="text" name="user" placeholder="Öğrenci numaranız" required>
+					    <input id="loginparam" type="text" name="user" placeholder="<?php if(!$kurumdisi): echo 'Öğrenci numaranız'; else: echo 'Telefon numaranız'; endif; ?>" required>
 				    </div>
 				    <div class="col-lg-6">
 					    <input type="password" name="pass" placeholder="YUIN Club sifreniz" autocomplete="off" required>
 				    </div>
 				    <div class="col-lg-6">
 					    <label for="ki">Yeditepe Üniversitesi öğrencisiyim <b>(Kurum içi giriş)</b></label><br>
-					    <input type="radio" id="ki" name="giristipi" value="ki" checked>
+					    <input type="radio" onclick="document.getElementById('loginparam').placeholder = 'Öğrenci numaranız';" id="ki" name="giristipi" value="ki" <?php if(!$kurumdisi): echo 'checked'; endif; ?>>
                         
                         <label for="kd">Yeditepe Üniversitesi öğrencisi değilim <b>(Kurum dışı)</b></label><br>
-                        <input type="radio" id="kd" name="giristipi" value="kd">
+                        <input type="radio" onclick="document.getElementById('loginparam').placeholder = 'Telefon numaranız';" id="kd" name="giristipi" value="kd" <?php if($kurumdisi): echo 'checked'; endif; ?>>
 				    </div>
 				</center>
 				<div class="col-lg-12">

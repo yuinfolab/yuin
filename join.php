@@ -101,6 +101,153 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
     
+    if(isset($_POST['kdkayit'])) {
+        
+        // Kurum dışı kayıt başlangıcı
+        
+        $name = trim($_POST['kdname']);
+        $surname = trim($_POST['kdsurname']);
+        $user = trim($_POST['kduser']); // Kurum dışı kayıtlarda telefon numarası olarak belirlendi.
+        $faculty = 'KURUM DIŞI';
+        $department = trim($_POST['kddepartment']);
+        $pass = trim($_POST['kdpass']);
+        $passverifi = trim($_POST['kdpassverifi']);
+        $phonenum = trim($_POST['kdphonenum']);
+        $email = trim($_POST['kdemail']);
+        $isYeditepeStudent = false; // Değil, kurum dışı.
+        
+        if(empty($name)) {
+            
+            $error .= "Lütfen adınızı giriniz." . PHP_EOL;
+        }
+        
+        if(empty($surname)) {
+                
+            $error .= "Lütfen soyadınızı giriniz." . PHP_EOL;
+        }
+        
+        $name = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
+        $surname = filter_var($surname, FILTER_SANITIZE_SPECIAL_CHARS);
+        
+        if(empty($user)) {
+            
+            $error .= "Lütfen öğrenci numaranızı giriniz." . PHP_EOL;
+        }
+        
+        if(empty($department)) {
+            
+            $error .= "Lütfen bölümünüzü giriniz." . PHP_EOL;
+        }
+        
+        $department = filter_var($department, FILTER_SANITIZE_SPECIAL_CHARS);
+        
+        if(empty($pass)) {
+            
+            $error .= "Lütfen şifrenizi belirleyiniz." . PHP_EOL;
+        }
+        
+        if(empty($passverifi)) {
+            
+            $error .= "Lütfen belirlediğiniz şifreyi doğrulayınız." . PHP_EOL;
+        }
+        
+        if(empty($phonenum)) {
+            
+            $error .= "Lütfen telefon numaranızı giriniz." . PHP_EOL;
+        }else{
+            
+            if($phonenum[0] != '0') {
+                
+                $error .= "Lütfen telefon numaranızı 05XXXXXXXXX formatında giriniz. <b>IF YOU ARE A FOREIGN STUDENT, YOU CAN INPUT A RANDOM PHONE NUMBER THAT FITS THE CRITERIA (Ex: 05444444444) MENTIONED.</b>" . PHP_EOL;
+            }
+        }
+        
+        $phonenum = filter_var($phonenum, FILTER_SANITIZE_SPECIAL_CHARS);
+        
+        if(empty($email)) {
+            
+            $error .= "Lütfen e-posta adresinizi giriniz." . PHP_EOL;
+        }
+        
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            
+            $error .= "E-posta adresiniz geçersiz!" . PHP_EOL;
+        }
+        
+        $email = filter_var($email, FILTER_VALIDATE_EMAIL);
+        $phonenum = filter_var($phonenum, FILTER_SANITIZE_SPECIAL_CHARS);
+        
+        if($user != $phonenum) {
+            
+            $error .= "Lütfen telefon numaranızı belirtilen iki alanda da aynı olacak şekilde giriniz." . PHP_EOL;
+        }
+        
+        if($stmt = $pdo->prepare("SELECT uid FROM users WHERE user = :user")) {
+            
+            $stmt->bindParam(':user', $user, PDO::PARAM_STR);
+            if($stmt->execute()) {
+                
+                if($stmt->rowCount() > 0) {
+                    
+                    $error .= "Bu telefon numarası sistemde zaten kayıtlı. Lütfen giriş yapınız." . PHP_EOL;
+                }
+            }
+            
+            unset($stmt);
+        }
+        
+        if($pass != $passverifi) {
+            
+            $error .= "Şifre ve şifre doğrulama kısmına girdiğiniz şifreler uyuşmuyor, lütfen tekrar deneyin." . PHP_EOL;
+        }
+        
+        if(!gRecaptchaVerify($_POST['g-recaptcha-response'])) {
+            
+            $error .= "Captcha doğrulaması başarısız oldu! lütfen tekrar dene." . PHP_EOL;
+        }
+        
+        if(empty($error)) {
+            
+            if($stmt = $pdo->prepare("INSERT into users (user,pass,name,surname,faculty,department,permlevel,email,phonenum, isYeditepeStudent) VALUES (:user, :pass, :name, :surname, :faculty, :department, :permlevel, :email, :phonenum, :iys)")) {
+                
+                $stmt->bindParam(':user', $user, PDO::PARAM_STR);
+                $stmt->bindParam(':pass', $hpass, PDO::PARAM_STR);
+                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                $stmt->bindParam(':surname', $surname, PDO::PARAM_STR);
+                $stmt->bindParam(':faculty', $faculty, PDO::PARAM_STR);
+                $stmt->bindParam(':department', $department, PDO::PARAM_STR);
+                $stmt->bindParam(':permlevel', $permlevel, PDO::PARAM_STR);
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $stmt->bindParam(':phonenum', $phonenum, PDO::PARAM_STR);
+                $stmt->bindParam(':iys', $isYeditepeStudent, PDO::PARAM_STR);
+                
+                $hpass = password_hash($pass, PASSWORD_DEFAULT);
+                $permlevel = 0;
+                
+                if($stmt->execute()) {
+                    
+                    unset($stmt);
+                    unset($pdo);
+                    
+                    header('Location: login.php?signup&kurumdisi');
+                    exit;
+                }else{
+                    $error .= "Yerel bir sistem hatası meydana geldi! (2) lütfen daha sonra tekrar deneyin. Eğer sorun düzelmez ise bu durumu yönetim kadrosundaki herhangi birine bildirin." . PHP_EOL;
+                }
+            }else{
+                
+                $error .= "Yerel bir sistem hatası meydana geldi! (1) lütfen daha sonra tekrar deneyin. Eğer sorun düzelmez ise bu durumu yönetim kadrosundaki herhangi birine bildirin." . PHP_EOL;
+            }
+        }
+        
+        unset($stmt);
+        unset($pdo);
+        goto end; // Kod akışına uymak için mecburen
+    }
+    
+    // Kurum dışı kayıt bitişi,
+    // Kurum içi manüel kayıt sistemi ile yapılan kayıt başlangıcı
+    
     $name = trim($_POST['name']);
     $surname = trim($_POST['surname']);
     $user = trim($_POST['user']);
@@ -238,6 +385,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error .= "Yerel bir sistem hatası meydana geldi! (1) lütfen daha sonra tekrar deneyin. Eğer sorun düzelmez ise bu durumu yönetim kadrosundaki herhangi birine bildirin." . PHP_EOL;
         }
     }
+    
+    // Kurum içi manüel kayıt sistemi ile yapılan kayıt bitişi
+}
+
+end:
+
+if(isset($_GET['form']) && !empty($_GET['form'])) {
+    
+    $formisim = $_GET['form'];
+}else{
+    
+    $formisim = '';
 }
 
 unset($stmt);
@@ -287,6 +446,7 @@ unset($pdo);
         
         document.getElementById("a7katilim").style.display = "block";
         document.getElementById("manuelKatilimForm").style.display = "none";
+        document.getElementById("disKatilimForm").style.display = "none";
     }
     
     function manuelformprompt() {
@@ -296,6 +456,17 @@ unset($pdo);
         
         document.getElementById("a7katilim").style.display = "none";
         document.getElementById("manuelKatilimForm").style.display = "block";
+        document.getElementById("disKatilimForm").style.display = "none";
+    }
+    
+    function outsidestudentformprompt() {
+        
+        document.getElementById("formInfo").innerHTML = "Yeditepe Üniversitesi dışı katılım formu";
+        document.getElementById("formDesc").innerHTML = "Eğer Yeditepe Üniversitesi öğrencisi değilseniz, bu sayfa üzerinden kaydolabilirsiniz.";
+        
+        document.getElementById("a7katilim").style.display = "none";
+        document.getElementById("manuelKatilimForm").style.display = "none";
+        document.getElementById("disKatilimForm").style.display = "block";
     }
     
     function parseA7(a7jsondata) {
@@ -434,8 +605,11 @@ unset($pdo);
 					<h5>Her şey senin için. Bilişim Kulübü'nün sunduğu tüm imkanlardan yararlanmak için hemen aramıza katıl :)</h5>
 					<br>
 					<p style="margin:20px;">AKADEMİK7 ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri AKADEMİ7 üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer AKADEMİ7 şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi elle girerek manuel olarak kaydolabilmektesiniz.</p>
+					<h5><i>Yeditepe Üniversitesi öğrencisiyseniz:</i></h5><br>
 					<a href="#form"><button class="site-btn" onclick="a7formprompt()">AKADEMİK7 ile giriş yaparak hızlı katıl</button></a>
 					<a href="#form"><button class="site-btn" onclick="manuelformprompt()">Manuel katılım sistemi</button></a>
+					<br><br><h5><i>Yeditepe Üniversitesi <b>öğrencisi <u>değilseniz</u>:<b></i></h5><br>
+					<a href="#form"><button class="site-btn" onclick="outsidestudentformprompt()">Yeditepe dışı katılım sistemi</button></a>
 				</div>
 				<div class="contact-form spad pb-0">
 				<div style="display: none;" id="a7katilim" class="comment-form --contact">
@@ -450,9 +624,9 @@ unset($pdo);
 					<div class="col-lg-4">
 						<input type="password" id="a7pass" name="pass" placeholder="Akademik7 / OBS Şifreniz" required>
 					</div>
-					<!--<div class="col-lg-4">
+					<div class="col-lg-4">
 						<center><div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div></center>
-					</div>-->
+					</div>
 					<div class="col-lg-12">
 						<div class="text-center">
 							<br><p><i>Alttaki Kişisel bilgilerimi talep et butonuna tıklayarak üstte belirttiğim Öğrenci Numaram, A7 / OBS şifrem kullanılarak İsim, Soyisim, Telefon numaram, Eposta adresim, Fakültem, Bölümüm gibi kişisel bilgilerimin Akademik7 sistemi üzerinden bu sayfaya aktarılmasını kabul ediyorum.</i></p>
@@ -462,7 +636,7 @@ unset($pdo);
 					</div>
 					</center>
 				</div>
-				<form style="display: none;" id="manuelKatilimForm" class="comment-form --contact" method="post">
+				<form action="?form=manuelkatilim#form" style="<?php if(isset($formisim) && $formisim != 'manuelkatilim'): echo 'display: none;'; else: echo 'display: block;'; endif; ?>" id="manuelKatilimForm" class="comment-form --contact" method="post">
 					<div id="form" class="section-title text-center">
 				        <h3 id="formInfo">Manuel katılım formu</h3>
 				        <p id="formDesc">Hızlı kayıt sistemini kullanmak istemiyorsan buradan kulübümüze kaydolabilirsin.</p>
@@ -508,6 +682,51 @@ unset($pdo);
 						</div>
 						<div class="col-lg-4">
 							<input type="email" id="email" name="email" placeholder="E-posta adresiniz" required>
+						</div>
+						<div class="col-lg-4">
+						    <center><div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div></center>
+					    </div>
+						
+						<div class="col-lg-12">
+							<div class="text-center">
+							    <br><p><i>Alttaki Aramıza Katıl butonuna tıklayarak üstte belirttiğim tüm kişisel bilgilerimi Yeditepe Üniversitesi Bilişim Kulübü (YUINFORMATICS) ile paylaşmayı kabul ediyor ve YUINFORMATICS'e üye kaldığım sürece bu bilgilerin YUINFORMATICS tarafından güvenle saklanıp, asla üçüncü taraflarla paylaşılmayacağını anlıyor ve kabul ediyorum.</i></p>
+								<button style="margin:20px;" class="site-btn">Aramıza Katıl</button>
+							</div>
+						</div>
+					</center>
+				</form>
+				<form action="?form=kurumdisi#form" style="<?php if(isset($formisim) && $formisim != 'kurumdisi'): echo 'display: none;'; else: echo 'display: block;'; endif; ?>" id="disKatilimForm" class="comment-form --contact" method="post">
+					<div id="form" class="section-title text-center">
+				        <h3 id="formInfo">Yeditepe Üniversitesi dışı katılım formu</h3>
+				        <p id="formDesc">Eğer Yeditepe Üniversitesi öğrencisi değilseniz, bu sayfa üzerinden kaydolabilirsiniz.</p>
+				        <h5 style="color:red;"><b>YEDİTEPE ÜNİVERSİTESİ ÖĞRENCİLERİ - Buradan kaydolmayınız.</b></h5>
+				    </div>
+					<center>
+					    <p style="color:red;margin:20px;"><?=$error;?></p>
+						<input type="hidden" name="kdkayit" value="">
+						<div class="col-lg-4">
+							<input type="text" id="name" name="kdname" placeholder="Adınız" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="text" id="surname" name="kdsurname" placeholder="Soyadınız" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="text" id="user" name="kduser" placeholder="Telefon Numaranız" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="text" id="department" name="kddepartment" placeholder="Üniversiteniz" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="password" name="kdpass" placeholder="Şifre belirleyin" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="password" name="kdpassverifi" placeholder="Şifrenizi doğrulayın" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="text" id="phonenum" name="kdphonenum" placeholder="Telefon numaranız (Tekrar)" required>
+						</div>
+						<div class="col-lg-4">
+							<input type="email" id="email" name="kdemail" placeholder="E-posta adresiniz" required>
 						</div>
 						<div class="col-lg-4">
 						    <center><div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div></center>
