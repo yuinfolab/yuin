@@ -260,7 +260,7 @@ if(isset($_GET['administrateAct']) && !empty($_GET['administrateAct']) && is_num
     
 }else{
     
-    if($stmt = $pdo->prepare("SELECT * FROM etkinlik GROUP BY date DESC")) {
+    if($stmt = $pdo->prepare("SELECT id, tag, info, location, date, slots FROM etkinlik GROUP BY date DESC")) {
         
         if($stmt->execute()) {
             
@@ -771,7 +771,7 @@ unset($pdo);
 				    ?>
 				    <tr>
 				        <td><?=$act['id'];?></td>
-				        <td><img src="<?=$act['banner'];?>" style="width:270px;height:270px;" alt="banner"></td>
+				        <td><!--<img src="$act['banner'];" style="width:270px;height:270px;" alt="banner">--><b>Afişi görmek için YÖNET butonuna tıklayın.</b></td>
 				        <td><?=$act['tag'];?></td>
 				        <td><?=$act['info'];?></td>
 				        <td><?=$act['location'];?></td>
