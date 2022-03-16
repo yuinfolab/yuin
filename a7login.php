@@ -101,17 +101,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if(empty($user)) {
         
-        $error .= "Lütfen öğrenci numaranızı ya da kullanıcı adınızı (varsa) giriniz." . PHP_EOL;
+        $error .= "Lütfen A7 / OBS öğrenci numaranızı giriniz." . PHP_EOL;
     }
     
     if(empty($pass)) {
         
-        $error .= "Lütfen şifrenizi giriniz." . PHP_EOL;
+        $error .= "Lütfen A7 / OBS şifrenizi giriniz." . PHP_EOL;
+    }
+    
+    $a7class = new A7_Entegrasyon($user, $pass);
+    $kisisel = $a7class->tryLogin();
+    if(!strpos($kisisel, 'isim')) {
+        
+        $error .= "Gecersiz bilgiler! Akademik7 hesabiniza giris yapilamadi!" . PHP_EOL;
     }
     
     if(empty($error)) {
         
-        if($stmt = $pdo->prepare("SELECT uid, status, user, pass FROM users WHERE user = :user")) {
+        $user = str_replace('U', null, $user); // Öğrenci kullanıcı adlarının ilk U harfini sil.
+        if($stmt = $pdo->prepare("SELECT uid, status, user FROM users WHERE user = :user")) {
             
             // PDO parametrelerini ata
             $stmt->bindParam(":user", $user, PDO::PARAM_STR);
@@ -121,11 +129,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     $uid = $row['uid'];
                     $user = $row['user'];
-                    $hpass = $row['pass'];
                     
                     if($row['status'] == 0) {
                         
-                        unset($row);
                         unset($stmt);
                         unset($pdo);
                         
@@ -133,27 +139,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                         exit;
                     }
                     
-                    if(password_verify($pass, $hpass)) {
-                        
-                        // Şifre doğru, login başarılı.
-                        
-                        $_SESSION['login'] = 1;
-                        $_SESSION['uid'] = $uid;
-                        $_SESSION['user'] = $user;
-                        $_SESSION['ip'] = getUserIP();
-                        
-                        unset($stmt);
-                        unset($pdo);
-                        
-                        header('Location: index.php');
-                        exit;
-                    }else{
-                        
-                        $error .= "Eksik veya hatalı şifre girdiniz, tekrar deneyin." . PHP_EOL;
-                    }
+                    // Şifre doğru, login başarılı.
+                    
+                    $_SESSION['login'] = 1;
+                    $_SESSION['uid'] = $uid;
+                    $_SESSION['user'] = $user;
+                    $_SESSION['ip'] = getUserIP();
+                    
+                    unset($stmt);
+                    unset($pdo);
+                    
+                    header('Location: index.php');
+                    exit;
+                    
                 }else{
                     
-                    $error .= "Böyle bir hesap bulunamadı! kaydolmak isterseniz navigasyondan kaydolabilirsiniz." . PHP_EOL;
+                    $error .= "Bu öğrenci numarası ile ilişkili bir YUIN Club hesabı bulunamadı! kaydolmak isterseniz navigasyondan kaydolabilirsiniz." . PHP_EOL;
                 }
             }else{
                 
@@ -178,7 +179,7 @@ if(isset($_GET['kurumdisi'])) {
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-	<title>Yeditepe Üniversitesi Bilişim Kulübü | YUIN Club'a giriş yap</title>
+	<title>Yeditepe Üniversitesi Bilişim Kulübü | YUIN Club'a A7 ile giriş yap</title>
 	<meta charset="UTF-8">
 	<meta name="description" content="Yeditepe Üniversitesi Bilişim Kulübü YUINFORMATICS'e hoş geldiniz!">
 	<meta name="keywords" content="yeditepe bilişim,yuin,yeditepe yuin,bilişim kulübü,bilgisayar kulübü,yuinformatics,informatics yeditepe">
@@ -258,7 +259,7 @@ if(isset($_GET['kurumdisi'])) {
 	<section class="about-section spad pt-0">
 		<div class="container">
 			<div class="section-title text-center">
-				<h3>YUIN Club'a giriş yap</h3>
+				<h3>YUIN Club'a Akademik7 ile giriş yap</h3>
 				<p>Kulübümüzle ilgili tüm işlemlerinizi buradan gerçekleştirebilirsiniz<br><br><i class="fas fa-signal"></i> <i>Anlık aktif üye sayısı: <?=$suanaktif;?></i><br><i class="fas fa-users"></i> <i>Sitemize kayıtlı toplam üye sayısı: <?=$kayitli;?></i></p>
 				<br>
 				<?php
@@ -291,23 +292,15 @@ if(isset($_GET['kurumdisi'])) {
 				
 				<center>
 				    <div class="col-lg-6">
-					    <input id="loginparam" type="text" name="user" placeholder="<?php if(!$kurumdisi): echo 'Öğrenci numaranız'; else: echo 'Telefon numaranız'; endif; ?>" required>
+					    <input id="loginparam" type="text" name="user" placeholder="A7 / OBS Kullanıcı Adı" required>
 				    </div>
 				    <div class="col-lg-6">
-					    <input type="password" name="pass" placeholder="YUIN Club sifreniz" autocomplete="off" required>
-				    </div>
-				    <div class="col-lg-6">
-					    <label for="ki">Yeditepe Üniversitesi öğrencisiyim <b>(Kurum içi giriş)</b></label><br>
-					    <input type="radio" onclick="document.getElementById('loginparam').placeholder = 'Öğrenci numaranız';" id="ki" name="giristipi" value="ki" <?php if(!$kurumdisi): echo 'checked'; endif; ?>>
-                        
-                        <label for="kd">Yeditepe Üniversitesi öğrencisi değilim <b>(Kurum dışı)</b></label><br>
-                        <input type="radio" onclick="document.getElementById('loginparam').placeholder = 'Telefon numaranız';" id="kd" name="giristipi" value="kd" <?php if($kurumdisi): echo 'checked'; endif; ?>>
+					    <input type="password" name="pass" placeholder="A7 / OBS Şifresi" autocomplete="off" required>
 				    </div>
 				</center>
 				<div class="col-lg-12">
 					<div class="text-center">
 					    <p>Kulübümüze üye değilmisin? <a href="join.php">Buraya tıklayarak</a> aramıza katılabilirsin</p>
-						<a class="site-btn" href="a7login.php">Akademik7 / OBS ile Giriş yap</a>
 						<button class="site-btn">Giriş yap</button>
 					</div>
 				</div>
