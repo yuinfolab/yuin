@@ -71,13 +71,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
         
+        /* Kullanıcı adları ile kaydolmayı da destekle.
         if($user[1] != '2' || strlen($user) < 11) {
             
             $ret = ['durum' => false, 'msj' => 'Gecersiz ogrenci numarasi!'];
             $ret = json_encode($ret);
             echo $ret;
             exit;
-        }
+        }*/
         
         /*if(!gRecaptchaVerify($_POST['g-recaptcha-response'])) {
             
