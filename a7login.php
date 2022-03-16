@@ -116,9 +116,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error .= "Gecersiz bilgiler! Akademik7 hesabiniza giris yapilamadi!" . PHP_EOL;
     }
     
+    $kisisel = @json_decode($kisisel, true);
+    if(!isset($kisisel['ogrenciNo']) || empty($kisisel['ogrenciNo'])) {
+        
+        $error .= "Öğrenci numaranız A7 / OBS üzerinden okunamadı!" . PHP_EOL;
+    }
+    
     if(empty($error)) {
         
-        $user = str_replace('U', null, $user); // Öğrenci kullanıcı adlarının ilk U harfini sil.
+        $user = $kisisel['ogrenciNo'];
         if($stmt = $pdo->prepare("SELECT uid, status, user FROM users WHERE user = :user")) {
             
             // PDO parametrelerini ata

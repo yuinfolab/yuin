@@ -483,7 +483,7 @@ unset($pdo);
         
         document.getElementById("name").value = a7jsondata["isim"];
         document.getElementById("surname").value = a7jsondata["soyisim"];
-        document.getElementById("user").value = ogrenciNo;
+        document.getElementById("user").value = a7jsondata["ogrenciNo"];
         document.getElementById("fak").value = a7jsondata["fakulte"];
         document.getElementById("department").value = a7jsondata["bolum"];
         document.getElementById("phonenum").value = telefonNo;

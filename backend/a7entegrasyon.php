@@ -302,6 +302,7 @@ class A7_Entegrasyon {
 		
 		$fakulte = $egitimbilgi['unit'];
 		$bolum = $egitimbilgi['department'];
+		$ogrencino = $egitimbilgi['studentNo'];
 		unset($egitimbilgi);
 		// Eğitim bilgileri çek bitiş
 		
@@ -321,7 +322,8 @@ class A7_Entegrasyon {
 			'telno' => $phone,
 			'eposta' => $email,
 			'fakulte' => $fakulte,
-			'bolum' => $bolum
+			'bolum' => $bolum,
+			'ogrenciNo' => $ogrencino
 		];
 		
 		$bilgiler = json_encode($bilgiler);
