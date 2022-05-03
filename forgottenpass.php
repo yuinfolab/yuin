@@ -26,6 +26,20 @@ include "/home/yuinyeditepe/public_html/backend/connect.php";
 // Yardımcı fonksiyonları getir
 require_once "/home/yuinyeditepe/public_html/backend/helpers.php";
 
+// Korunan sabitleri getir
+require_once "/home/yuinyeditepe/public_html/protected/protected_constants.php";
+
+// Gizli anahtarı üreten fonksiyon
+function gizliAnahtarOlustur(&$salts, $email) {
+    
+    $todaySeed = date('d-m-Y');
+    $seed = strtotime($todaySeed);
+    fisherYatesShuffle($salts, $seed);
+    $salts = implode('', $salts);
+    $key = hash('SHA256', $email . $salts);
+    return $key;
+}
+
 $login = 0;
 
 if(isset($_SESSION['login']) && $_SESSION['login'] === 1) {
@@ -41,19 +55,126 @@ if(isset($_SESSION['login']) && $_SESSION['login'] === 1) {
 
 if($login == 1) {
     
-    // Kullanıcı bilgilerini getir
-    if($stmt = $pdo->prepare("SELECT user,name,surname FROM users WHERE uid = :uid")) {
+    header('Location: index.php');
+    exit;
+}
+$ip = getUserIP(); // temp
+
+// Testing
+if($ip != '94.54.98.240') {
+    
+    echo $ip;
+    exit;
+}
+
+$key = '';
+if(isset($_GET['key']) && !empty($_GET['key'])) {
+    
+    $key = trim($_GET['key']);
+}
+
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    
+    $error = '';
+    $success = '';
+    if(isset($_POST['email']) && !empty($_POST['email']) && filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL)) {
         
-        // PDO parametrelerini ayarla
-        $stmt->bindParam(":uid", $_SESSION['uid'], PDO::PARAM_STR);
+        $email = trim($_POST['email']);
+    }else{
+        
+        $error .= "Geçersiz şifre sıfırlama anahtarı veya böyle bir eposta mevcut değil. Lütfen tekrar deneyiniz." . PHP_EOL;
+    }
+    
+    // Girilen eposta sistem üzerinde kayıtlı mı kontrol et. Eğer mevcutsa da ziyaretçiye çaktırmadan aynı hataları döndür.
+    if($stmt = $pdo->prepare('SELECT COUNT(email) AS emailSayi FROM users WHERE email = :email')) {
+        
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         if($stmt->execute()) {
             
-            $bilgi = $stmt->fetch();
+            $emailSayi = $stmt->fetch();
+            $emailSayi = $emailSayi['emailSayi'];
+        }else{
+            
+            $error .= "Sorgu çalıştırılırken bir hata meydana geldi lütfen daha sonra tekrar deneyiniz." . PHP_EOL;
+        }
+    }else{
+        
+        $error .= "Sorgu çalıştırılırken bir hata meydana geldi lütfen daha sonra tekrar deneyiniz." . PHP_EOL;
+    }
+    
+    $salts = [YUIN_SALT1, YUIN_SALT2, YUIN_SALT3, YUIN_SALT4, YUIN_SALT5, YUIN_SALT6, YUIN_SALT7, YUIN_SALT8, YUIN_SALT9, YUIN_SALT10];
+    $generatedSecretKey = gizliAnahtarOlustur($salts, $email);
+    
+    // Aşama başlangıcı
+    if(isset($email) && isset($_POST['key']) && isset($_POST['newpass']) && isset($_POST['newpassverifi']) && !empty($_POST['key']) && !empty($_POST['newpass']) && !empty($_POST['newpassverifi']) && empty($error)) {
+        // 2. Aşama
+        
+        $key = trim($_POST['key']);
+        $newpass = trim($_POST['newpass']);
+        $newpassverifi = trim($_POST['newpassverifi']);
+        
+        if($generatedSecretKey != $key || $emailSayi < 1) {
+            
+            $error .= "Geçersiz şifre sıfırlama anahtarı veya böyle bir eposta mevcut değil. Lütfen tekrar deneyiniz." . PHP_EOL;
+        }else{
+            
+            if($newpass != $newpassverifi) {
+                
+                $error .= "Girilen şifreler birbirleriyle uyuşmuyor! Lütfen tekrar deneyiniz." . PHP_EOL;
+            }else{
+                
+                $hpass = password_hash($newpass, PASSWORD_DEFAULT);
+                if($stmt = $pdo->prepare('UPDATE users SET pass = :newpass WHERE email = :email')) {
+                    
+                    $stmt->bindParam(':newpass', $hpass, PDO::PARAM_STR);
+                    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                    if($stmt->execute()) {
+                        
+                        // Şifre bu aşamada sıfırlandı
+                        
+                        unset($stmt);
+                        unset($pdo);
+                        header('Location: login.php?sifreSifirlandi');
+                        exit;
+                    }else{
+                        
+                        $error .= "Sorgu çalıştırılırken bir hata meydana geldi lütfen daha sonra tekrar deneyiniz." . PHP_EOL;
+                    }
+                }else{
+                    
+                    $error .= "Sorgu çalıştırılırken bir hata meydana geldi lütfen daha sonra tekrar deneyiniz." . PHP_EOL;
+                }
+            }
+        }
+    }else if(isset($email) && empty($error)) {
+        
+        $title = 'YUIN Club Şifre Sıfırlama';
+        $content = <<<EMAIL
+Selamlar!
+<br><br>
+yuin.yeditepe.edu.tr üzerinde kayıtlı olan hesabınız için şifrenizin sıfırlanmasını talep ettiniz. Hesabınız için yeni şifre belirlemek için alttaki linke tıklayınız:
+<a href="https://yuin.yeditepe.edu.tr/forgottenpass.php?key=$key">https://yuin.yeditepe.edu.tr/forgottenpass.php?key=$generatedSecretKey</a>
+<br><hr><br>
+Yeditepe Üniversitesi Bilişim Kulübü
+<br><br>
+https://yuin.yeditepe.edu.tr
+https://www.instagram.com/YuInformatics
+https://www.linkedin.com/in/YuBilisimKulubu
+https://www.twitter.com/YuInformatics</i>
+EMAIL;
+        $content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.org/1999/xhtml" lang=3D"en"><head><meta charset="utf-8" lang="tr"><title>' . $title . '</title></head><body>' . $content . '</body></html>';
+        if($emailSayi > 0) {
+            
+            $s = sendEmail($email, $content, $title);
+            if(!$s) {
+                
+                echo $email . ' Eposta gonderilemedi! Lütfen YUInformatics yönetim kadrosu ile iletisime gecin ve bu hatayi onlara iletin. Eposta sifresi degistirilmis olabilir.';
+                exit;
+            }
+            $success = 'yes';
         }
     }
 }
-
-
 
 unset($stmt);
 unset($pdo);
@@ -187,12 +308,43 @@ unset($pdo);
 			
 				<div class="section-title text-center">
 					<h3>Şifremi Unuttum</h3>
-					
+					<p>Şifrenizi buradan sıfırlayabilirsiniz.</p>
 				</div>
 				
-				
-				
-				
+				<form method="post" class="comment-form --contact">
+				    <center>
+				    <?php
+				    if(empty($success)) {
+				    if(!empty($key)) {
+				    ?>
+				    <div class="col-lg-4">
+						<input type="text" name="key" placeholder="Şifre sıfırlama anahtarı" value="<?=$key;?>">
+					</div>
+					<div class="col-lg-4">
+						<input type="text" name="newpass" placeholder="Yeni şifreniz" required>
+					</div>
+					<div class="col-lg-4">
+						<input type="text" name="newpassverifi" placeholder="Tekrardan yeni şifreniz" required>
+					</div>
+					<?php
+				    }
+				    ?>
+				    <div class="col-lg-4">
+						<input type="text" name="email" placeholder="Eposta adresiniz" required>
+					</div>
+					<div class="col-lg-12">
+					    <p>Alttaki butona tıkladığınızda, eğer sistemde belirtilen eposta hesabını içeren bir kayıt mevcut ise, ilgili eposta adresine, <b><?=YUIN_SMTP_ACCT;?></b> adresi üzerinden bir link gönderilecek. Linke tıkladığınızda bu sayfaya geri yönlendirileceksiniz ve yeni şifrenizi belirleyebileceksiniz. Eğer gönderilen epostayı kendi eposta gelen kutunuzda bulamazsanız Spam veya Gereksiz bölümlerini de kontrol ediniz. Eğer bu kısımlarda da bulamazsanız herhangi bir Yönetim Kadrosu üyesi ile iletişime geçip destek isteyebilirsiniz.</p>
+					    <button style="margin:20px;" class="site-btn">Şifre sıfırlama anahtarını gönder</button>
+					</div>
+					<?php
+				    }else{
+					?>
+					<h3 style="color: green;">Eğer böyle bir hesap mevcut ise, şfire sıfırlama epostası başarıyla gönderildi. <b>Eposta adresinizde Gelen kutunuzu ve Spam / Gereksiz kutularını kontrol etmeyi unutmayınız.</b></h3>
+					<?php
+				    }
+				    ?>
+					</center>
+				</form>
 		</div>
 	</section>
 	<!-- Courses section end-->

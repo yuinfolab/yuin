@@ -243,7 +243,9 @@ unset($pdo);
 				
 				if($kat) {
 				    foreach($photos as $photo) {
-				    
+				        
+				        // Hızlı fix... yerel dizin ile web dizini doğal olarak farklı...
+				        $photo['img'] = str_replace(YUIN_GALLERY_DIRECTORY, 'https://yuin.yeditepe.edu.tr/img/galeri/', $photo['img']);
 				    ?>
 				    
 				    <div class="col-lg-4 col-md-6 course-item">

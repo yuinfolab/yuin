@@ -48,8 +48,8 @@ function sendEmail($to, $body, $subject) {
 
     try {
         
-        //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
-        $mail->SMTPDebug = 2;
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $mail->SMTPDebug = 9;
         $mail->isSMTP();                                            
         $mail->Host = gethostbyname(YUIN_SMTP);
         $mail->SMTPAuth   = true;                                   
@@ -184,3 +184,21 @@ function getGravatarLink($mail) {
     return $mail;
 }
 
+// https://stackoverflow.com/questions/6557805/randomize-a-php-array-with-a-seed
+function fisherYatesShuffle(&$items, $seed) {
+    
+    @mt_srand($seed);
+    for ($i = count($items) - 1; $i > 0; $i--) {
+        
+        $j = @mt_rand(0, $i);
+        $tmp = $items[$i];
+        $items[$i] = $items[$j];
+        $items[$j] = $tmp;
+    }
+}
+
+function randomize($len = 18) {
+	
+	$randstr = substr(str_shuffle(MD5(microtime())), 0, $len);
+	return $randstr;
+}

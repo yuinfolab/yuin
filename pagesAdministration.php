@@ -102,6 +102,12 @@ if(isset($_GET['action']) && !empty($_GET['action']) && $_GET['action'] == 'admG
             }
         }
     }
+    
+    // gallery.php'de uyguladığım düzeltmenin aynısı
+    foreach($imgs as $imgkey => $imgval) {
+        
+        $imgs[$imgkey]['img'] = str_replace(YUIN_GALLERY_DIRECTORY, 'https://yuin.yeditepe.edu.tr/img/galeri/', $imgs[$imgkey]['img']);
+    }
 }
 
 if(isset($_GET['action']) && !empty($_GET['action']) && $_GET['action'] == 'admMagazines') {
@@ -139,6 +145,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     if($action == 'editGalAct' && isset($_GET['galAdmId']) && !empty($_GET['galAdmId']) && is_numeric($_GET['galAdmId'])) {
         
         $error = '';
+        $editImg = $_GET['galAdmId'];
+        
         $updatePhoto = false;
         $photo = @$_FILES['photo']['tmp_name'];
         if(isset($photo) && !empty($photo)) {
@@ -149,6 +157,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         if($updatePhoto == true) {
             
             $photoExt = $_FILES['photo']['type'];
+            $photoTrueExt = explode('/', $photoExt);
+            $photoTrueExt = $photoTrueExt[1];
             
             if($_FILES['photo']['size'] < 0 || !getimagesize($_FILES['photo']['tmp_name'])) {
                 
@@ -164,13 +174,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $updateBanner = true;
             }*/
             
-            $photo = base64_encode($photo);
+            //$photo = base64_encode($photo); Bu kısımlar devre dışı bırakıldı çünkü artık galeri içeriği /home/yuinyeditepe/public_html/img/galeri içerisine kaydedilecek!!!
             unlink($_FILES['photo']['tmp_name']);
-            $photo = 'data:' . $photoExt . ';base64,' . $photo;
+            //$photo = 'data:' . $photoExt . ';base64,' . $photo;
         }
         
         $alt = trim($_POST['alt']);
         $priority = trim($_POST['priority']);
+        $photoName = YUIN_GALLERY_DIRECTORY . $alt . '-' . time() . '-' . randomize() . '.' . $photoTrueExt;
         
         if(empty($alt)) {
             
@@ -195,12 +206,31 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 if($updatePhoto == true) {
                     
-                    $stmt->bindParam(":photo", $photo, PDO::PARAM_STR);
+                    // Bir önceki fotoğraf dosya ismini almak için alt sorgu
+                    
+                    $result = false;
+                    if($stmt2 = $pdo->prepare("SELECT img FROM galeri WHERE id = :id")) {
+                        
+                        $stmt2->bindParam(":id", $editImg, PDO::PARAM_STR);
+                        if($stmt2->execute()) {
+                            
+                            $result = $stmt2->fetch();
+                            $result = $result['img'];
+                            if(file_exists($result)) {
+                                
+                                unlink($result);
+                            }
+                        }
+                    }
+                    unset($stmt2);
+                    
+                    file_put_contents($photoName, $photo);
+                    $stmt->bindParam(":photo", $photoName, PDO::PARAM_STR);
                 }
                 
                 $stmt->bindParam(":alt", $alt, PDO::PARAM_STR);
                 $stmt->bindParam(":priority", $priority, PDO::PARAM_STR);
-                $stmt->bindParam(":id", $_GET['galAdmId'], PDO::PARAM_STR);
+                $stmt->bindParam(":id", $editImg, PDO::PARAM_STR);
                 
                 if($stmt->execute()) {
                     
@@ -220,11 +250,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         if(isset($photo) && !empty($photo)) {
             
             $photoExt = $_FILES['photo']['type'];
+            $photoTrueExt = explode('/', $photoExt);
+            $photoTrueExt = $photoTrueExt[1];
             
             if($_FILES['photo']['size'] < 0 || !getimagesize($_FILES['photo']['tmp_name'])) {
                 
                 unlink($_FILES['photo']['tmp_name']);
                 $error .= "Lütfen fotoğraf yükleyin. Gönderim yarıda mı kesildi de fotoğraf eksik ya da bozuk geldi?" . PHP_EOL;
+            }
+            
+            if(!in_array($photoExt, YUIN_ALLOWED_IMAGE_EXTENSIONS)) {
+                
+                unlink($_FILES['photo']['tmp_name']);
+                $error .= "Yüklediğiniz fotoğrafın uzantısı izin verilen fotoğraf uzantıları arasında değil! Örn: .jpg, .png vb. tipinde uzantılara izin verilir!" . PHP_EOL;
             }
             
             $photo = file_get_contents($_FILES['photo']['tmp_name']);
@@ -235,9 +273,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $updateBanner = true;
             }*/
             
-            $photo = base64_encode($photo);
+            //$photo = base64_encode($photo); Bu kısımlar devre dışı bırakıldı çünkü artık galeri içeriği /home/yuinyeditepe/public_html/img/galeri içerisine kaydedilecek!!!
             unlink($_FILES['photo']['tmp_name']);
-            $photo = 'data:' . $photoExt . ';base64,' . $photo;
+            //$photo = 'data:' . $photoExt . ';base64,' . $photo;
         }else{
             
             $error .= "Lütfen fotoğraf yükleyiniz." . PHP_EOL;
@@ -245,6 +283,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $alt = trim($_POST['alt']);
         $priority = trim($_POST['priority']);
+        $photoName = YUIN_GALLERY_DIRECTORY . $alt . '-' . time() . '-' . randomize() . '.' . $photoTrueExt;
         
         if(empty($alt)) {
             
@@ -258,7 +297,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if(empty($error)) {
             
-            if($stmt = $pdo->prepare("INSERT into galeri (img, alt, priority) VALUES (:photo, :alt, :priority)")) {
+            /*if($stmt = $pdo->prepare("INSERT into galeri (img, alt, priority) VALUES (:photo, :alt, :priority)")) { Bu kısımlar devre dışı bırakıldı çünkü artık galeri içeriği /home/yuinyeditepe/public_html/img/galeri içerisine kaydedilecek!!!
+                // Eski veritabanına kaydeden kod şimdilik burada dursun, farklı bir yerde lazım olursa buradan alınabilir.
                 
                 $stmt->bindParam(":photo", $photo, PDO::PARAM_STR);
                 $stmt->bindParam(":alt", $alt, PDO::PARAM_STR);
@@ -268,6 +308,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     unset($stmt);
                     unset($pdo);
+                    header('Location: pagesAdministration.php?action=admGallery');
+                    exit;
+                }
+            }*/
+            
+            if($stmt = $pdo->prepare("INSERT into galeri (img, alt, priority) VALUES (:img, :alt, :priority)")) {
+                
+                $stmt->bindParam(":img", $photoName, PDO::PARAM_STR);
+                $stmt->bindParam(":alt", $alt, PDO::PARAM_STR);
+                $stmt->bindParam(":priority", $priority, PDO::PARAM_STR);
+                
+                if($stmt->execute()) {
+                    
+                    unset($stmt);
+                    unset($pdo);
+                    file_put_contents($photoName, $photo);
                     header('Location: pagesAdministration.php?action=admGallery');
                     exit;
                 }
@@ -287,13 +343,28 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if(empty($error)) {
             
-            if($stmt = $pdo->prepare("DELETE from galeri WHERE id = :id")) {
+            $result = false;
+            if($stmt = $pdo->prepare("SELECT img FROM galeri WHERE id = :id")) {
+                
+                $stmt->bindParam(":id", $delImg, PDO::PARAM_STR);
+                if($stmt->execute()) {
+                    
+                    $result = $stmt->fetch();
+                    $result = $result['img'];
+                }
+            }
+            
+            if(($stmt = $pdo->prepare("DELETE from galeri WHERE id = :id")) && $result) {
                 
                 $stmt->bindParam(":id", $delImg, PDO::PARAM_STR);
                 if($stmt->execute()) {
                     
                     unset($stmt);
                     unset($pdo);
+                    if(file_exists($result)) {
+                        
+                        unlink($result);
+                    }
                     header('Location: pagesAdministration.php?action=admGallery');
                     exit;
                 }
@@ -858,7 +929,7 @@ unset($pdo);
 				            <input type="hidden" name="action" value="editGalAct">
 				            <div class="col-lg-6">
 				                <label for="galPhoto"><p>Fotoğraf <b>(Sadece fotoğrafı değiştirmek için kullanın yoksa boş bırakın)</b></p></label>
-					            <img src="<?=$imgs['img'];?>" style="width:40%;height:40%;"><br>
+					            <img src="<?=str_replace(YUIN_GALLERY_DIRECTORY, 'https://yuin.yeditepe.edu.tr/img/galeri/', $imgs['img']);?>" style="width:40%;height:40%;"><br>
 					            <br>
 					            <input type="file" id="galPhoto" name="photo">
 				            </div>

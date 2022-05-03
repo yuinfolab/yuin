@@ -611,6 +611,9 @@ unset($pdo);
 					<a href="#form"><button class="site-btn" onclick="manuelformprompt()">Manuel katılım sistemi</button></a>
 					<br><br><h5><i>Yeditepe Üniversitesi <b>öğrencisi <u>değilseniz</u>:<b></i></h5><br>
 					<a href="#form"><button class="site-btn" onclick="outsidestudentformprompt()">Yeditepe dışı katılım sistemi</button></a>
+					<br><br>
+					<h5>Alttaki QR kodunu kulübümüze katılmak isteyen kişilere iletebilirsiniz</h5>
+					<center><img src="https://yuin.yeditepe.edu.tr/img/qr/join.png" alt="YUIN Katılım QR Kodu" style="width:60%;height:60%;"></center>
 				</div>
 				<div class="contact-form spad pb-0">
 				<div style="display: none;" id="a7katilim" class="comment-form --contact">

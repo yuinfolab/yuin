@@ -283,6 +283,16 @@ if(isset($_GET['kurumdisi'])) {
 			        <?php
 			    }
 			    
+			    if(isset($_GET['signup'])) {
+			        
+			        ?>
+			        <div class="alert alert-success">
+                        
+                        <strong><i class="fas fa-exclamation-triangle"></i> Kayıt başarılı</strong> Aramıza hoşgeldin! hesabın başarıyla oluşturuldu, artık alttan giriş yapabilirsin.
+                    </div>
+			        <?php
+			    }
+			    
 			    ?>
 				<p style="color:red;margin:20px;"><?=$error;?></p>
 			</div>
