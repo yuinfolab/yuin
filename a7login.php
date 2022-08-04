@@ -89,6 +89,12 @@ if(!is_numeric($kayitli)) {
     $kayitli = '<b>Hesaplanırken hata meydana geldi!</b>';
 }
 
+// Login işleminden sonra gidilecek bir sayfa var ise, sayfayı belleğe al.
+$goto = '';
+if(isset($_GET['goto']) && !empty($_GET['goto'])) {
+    
+    $goto = trim($_GET['goto']);
+}
 
 $error = "";
 $user = "";
@@ -109,17 +115,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error .= "Lütfen A7 / OBS şifrenizi giriniz." . PHP_EOL;
     }
     
-    $a7class = new A7_Entegrasyon($user, $pass);
-    $kisisel = $a7class->tryLogin();
-    if(!strpos($kisisel, 'isim')) {
+    if(!gRecaptchaVerify($_POST['g-recaptcha-response'])) {
         
-        $error .= "Gecersiz bilgiler! Akademik7 hesabiniza giris yapilamadi!" . PHP_EOL;
+        $error .= "Lütfen robot olmadığını kanıtla." . PHP_EOL;
     }
     
-    $kisisel = @json_decode($kisisel, true);
-    if(!isset($kisisel['ogrenciNo']) || empty($kisisel['ogrenciNo'])) {
+    if(empty($error)) {
+    
+        $a7class = new A7_Entegrasyon($user, $pass);
+        $kisisel = $a7class->tryLogin();
+        if(!strpos($kisisel, 'isim')) {
+            
+            $error .= "Gecersiz bilgiler! Akademik7 hesabiniza giris yapilamadi!" . PHP_EOL;
+        }
         
-        $error .= "Öğrenci numaranız A7 / OBS üzerinden okunamadı!" . PHP_EOL;
+        $kisisel = @json_decode($kisisel, true);
+        if(!isset($kisisel['ogrenciNo']) || empty($kisisel['ogrenciNo'])) {
+            
+            $error .= "Öğrenci numaranız A7 / OBS üzerinden okunamadı!" . PHP_EOL;
+        }
     }
     
     if(empty($error)) {
@@ -155,7 +169,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     unset($stmt);
                     unset($pdo);
                     
-                    header('Location: index.php');
+                    if(!empty($goto)) {
+                        
+                        header('Location: ' . $goto);
+                    }else{
+                        
+                        header('Location: index.php');
+                    }
                     exit;
                     
                 }else{
@@ -214,35 +234,15 @@ if(isset($_GET['kurumdisi'])) {
 
 </head>
 <body>
-	<!-- Page Preloder -->
-	<div id="preloder">
-		<div class="loader"></div>
-	</div>
-
-	<!-- header section -->
-	<header class="header-section">
-		<div class="container">
-			<!-- logo -->
-			<a href="index.php" class="site-logo"><img src="img/logo.png" style="width:40%;height:40%;" alt="Bilişim Kulübü Logo"></a>
-			<div class="nav-switch">
-				<i class="fa fa-bars"></i>
-			</div>
-			<div class="header-info">
-				<div class="hf-item">
-					<i class="fa fa-map-marker"></i>
-					<p><span>Kampüsteki konum:</span>Ticari Bilimler Fakültesi 1. Kat Z16-B</p>
-				</div>
-			</div>
-		</div>
-	</header>
-	<!-- header section end-->
-
-
+	<script src='https://www.google.com/recaptcha/api.js' async defer ></script>
+	
+	<?=/* En üst barı göster */ file_get_contents('tmpller/headerEnUst.tmpl');?>
+	
 	<!-- Header section  -->
 	<nav class="nav-section">
 		<div class="container">
 			<div class="nav-right">
-				<li><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
+				<li style="list-style-type: none;"><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
 			</div>
 			<ul class="main-menu">
 				<?=/* Ziyaretçi navigasyon barını göster */ file_get_contents('tmpller/ziyaretciNavbar.tmpl');?>
@@ -290,20 +290,33 @@ if(isset($_GET['kurumdisi'])) {
 			        <?php
 			    }
 			    
+			    if(!empty($error)) {
+			        
+			        ?>
+			        <div class="alert alert-danger">
+			            
+			            <strong><i class="fas fa-exclamation-triangle"></i> Hata!</strong> <?=$error;?>
+			        </div>
+			        <?php
+			    }
+			    
 			    ?>
-				<p style="color:red;margin:20px;"><?=$error;?></p>
 			</div>
 			
 			<form class="comment-form --contact" method="post">
 				
 				<center>
 				    <div class="col-lg-6">
-					    <input id="loginparam" type="text" name="user" placeholder="A7 / OBS Kullanıcı Adı" required>
+					    <input id="loginparam" type="text" name="user" placeholder="A7 / OBS Kullanıcı Adı VEYA Başında U harfi ile Yeditepe öğrenci numaranız" required>
 				    </div>
 				    <div class="col-lg-6">
 					    <input type="password" name="pass" placeholder="A7 / OBS Şifresi" autocomplete="off" required>
 				    </div>
+				    <div class="col-lg-6">
+					    <div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div>
+				    </div>
 				</center>
+				<br>
 				<div class="col-lg-12">
 					<div class="text-center">
 					    <p>Kulübümüze üye değilmisin? <a href="join.php">Buraya tıklayarak</a> aramıza katılabilirsin</p>

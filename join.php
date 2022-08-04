@@ -532,30 +532,9 @@ unset($pdo);
     });
     
     </script>
-	<!-- Page Preloder -->
-	<div id="preloder">
-		<div class="loader"></div>
-	</div>
-
-	<!-- header section -->
-	<header class="header-section">
-		<div class="container">
-			<!-- logo -->
-			<a href="index.php" class="site-logo"><img src="img/logo.png" style="width:40%;height:40%;" alt="Bilişim Kulübü Logo"></a>
-			<div class="nav-switch">
-				<i class="fa fa-bars"></i>
-			</div>
-			<div class="header-info">
-				<div class="hf-item">
-					<i class="fa fa-map-marker"></i>
-					<p><span>Kampüsteki konum:</span>Ticari Bilimler Fakültesi 1. Kat Z16-B</p>
-				</div>
-			</div>
-		</div>
-	</header>
-	<!-- header section end-->
-
-
+	
+	<?=/* En üst barı göster */ file_get_contents('tmpller/headerEnUst.tmpl');?>
+	
 	<!-- Header section  -->
 	<nav class="nav-section">
 		<div class="container">
@@ -567,13 +546,13 @@ unset($pdo);
 				    if($login == 0) {
 				        
 				    ?>
-				    <li><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
+				    <li style="list-style-type: none;"><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
 				    <?php
 				    
 				    }else{
 				    ?>
 				    
-				    <li>Tekrardan hoşgeldiniz Sayın <?=$bilgi['name'] . ' ' . $bilgi['surname'];?></li> 
+				    <li style="list-style-type: none;">Tekrardan hoşgeldiniz Sayın <?=$bilgi['name'] . ' ' . $bilgi['surname'];?></li> 
 				    
 				    <?php
 				    }
@@ -613,7 +592,7 @@ unset($pdo);
 					<a href="#form"><button class="site-btn" onclick="outsidestudentformprompt()">Yeditepe dışı katılım sistemi</button></a>
 					<br><br>
 					<h5>Alttaki QR kodunu kulübümüze katılmak isteyen kişilere iletebilirsiniz</h5>
-					<center><img src="https://yuin.yeditepe.edu.tr/img/qr/join.png" alt="YUIN Katılım QR Kodu" style="width:60%;height:60%;"></center>
+					<center><img src="https://yuin.yeditepe.edu.tr/img/qr/join.png" alt="YUIN Katılım QR Kodu" style="width:40%;height:40%;"></center>
 				</div>
 				<div class="contact-form spad pb-0">
 				<div style="display: none;" id="a7katilim" class="comment-form --contact">

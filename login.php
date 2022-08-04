@@ -89,6 +89,12 @@ if(!is_numeric($kayitli)) {
     $kayitli = '<b>Hesaplanırken hata meydana geldi!</b>';
 }
 
+// Login işleminden sonra gidilecek bir sayfa var ise, sayfayı belleğe al.
+$goto = '';
+if(isset($_GET['goto']) && !empty($_GET['goto'])) {
+    
+    $goto = trim($_GET['goto']);
+}
 
 $error = "";
 $user = "";
@@ -107,6 +113,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(empty($pass)) {
         
         $error .= "Lütfen şifrenizi giriniz." . PHP_EOL;
+    }
+    
+    if(!gRecaptchaVerify($_POST['g-recaptcha-response'])) {
+        
+        $error .= "Lütfen robot olmadığını kanıtla." . PHP_EOL;
     }
     
     if(empty($error)) {
@@ -145,7 +156,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                         unset($stmt);
                         unset($pdo);
                         
-                        header('Location: index.php');
+                        if(!empty($goto)) {
+                            
+                            header('Location: ' . $goto);
+                        }else{
+                            
+                            header('Location: index.php');
+                        }
                         exit;
                     }else{
                         
@@ -207,35 +224,15 @@ if(isset($_GET['kurumdisi'])) {
 
 </head>
 <body>
-	<!-- Page Preloder -->
-	<div id="preloder">
-		<div class="loader"></div>
-	</div>
-
-	<!-- header section -->
-	<header class="header-section">
-		<div class="container">
-			<!-- logo -->
-			<a href="index.php" class="site-logo"><img src="img/logo.png" style="width:40%;height:40%;" alt="Bilişim Kulübü Logo"></a>
-			<div class="nav-switch">
-				<i class="fa fa-bars"></i>
-			</div>
-			<div class="header-info">
-				<div class="hf-item">
-					<i class="fa fa-map-marker"></i>
-					<p><span>Kampüsteki konum:</span>Ticari Bilimler Fakültesi 1. Kat Z16-B</p>
-				</div>
-			</div>
-		</div>
-	</header>
-	<!-- header section end-->
-
-
+	<script src='https://www.google.com/recaptcha/api.js' async defer ></script>
+	
+	<?=/* En üst barı göster */ file_get_contents('tmpller/headerEnUst.tmpl');?>
+	
 	<!-- Header section  -->
 	<nav class="nav-section">
 		<div class="container">
 			<div class="nav-right">
-				<li><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
+				<li style="list-style-type: none;"><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
 			</div>
 			<ul class="main-menu">
 				<?=/* Ziyaretçi navigasyon barını göster */ file_get_contents('tmpller/ziyaretciNavbar.tmpl');?>
@@ -258,9 +255,12 @@ if(isset($_GET['kurumdisi'])) {
 	<section class="about-section spad pt-0">
 		<div class="container">
 			<div class="section-title text-center">
+				
 				<h3>YUIN Club'a giriş yap</h3>
 				<p>Kulübümüzle ilgili tüm işlemlerinizi buradan gerçekleştirebilirsiniz<br><br><i class="fas fa-signal"></i> <i>Anlık aktif üye sayısı: <?=$suanaktif;?></i><br><i class="fas fa-users"></i> <i>Sitemize kayıtlı toplam üye sayısı: <?=$kayitli;?></i></p>
 				<br>
+				<a class="site-btn" href="a7login.php?goto=<?=$goto;?>">Yeditepe Akademik7 / OBS ile Giriş yap</a>
+				<br><br>
 				<?php
 			    
 			    if(isset($_GET['loginToProceed'])) {
@@ -293,8 +293,17 @@ if(isset($_GET['kurumdisi'])) {
 			        <?php
 			    }
 			    
+			    if(!empty($error)) {
+			        
+			        ?>
+			        <div class="alert alert-danger">
+			            
+			            <strong><i class="fas fa-exclamation-triangle"></i> Hata!</strong> <?=$error;?>
+			        </div>
+			        <?php
+			    }
+			    
 			    ?>
-				<p style="color:red;margin:20px;"><?=$error;?></p>
 			</div>
 			
 			<form class="comment-form --contact" method="post">
@@ -313,12 +322,15 @@ if(isset($_GET['kurumdisi'])) {
                         <label for="kd">Yeditepe Üniversitesi öğrencisi değilim <b>(Kurum dışı)</b></label><br>
                         <input type="radio" onclick="document.getElementById('loginparam').placeholder = 'Telefon numaranız';" id="kd" name="giristipi" value="kd" <?php if($kurumdisi): echo 'checked'; endif; ?>>
 				    </div>
+				    <div class="col-lg-6">
+					    <div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div>
+				    </div>
 				</center>
+				<br>
 				<div class="col-lg-12">
 					<div class="text-center">
 					    <p>Kulübümüze üye değilmisin? <a href="join.php">Buraya tıklayarak</a> aramıza katılabilirsin</p>
-						<a class="site-btn" href="a7login.php">Akademik7 / OBS ile Giriş yap</a>
-						<button class="site-btn">Giriş yap</button>
+						<button class="site-btn">YUIN Hesabı ile Giriş yap</button>
 					</div>
 				</div>
 			</form>

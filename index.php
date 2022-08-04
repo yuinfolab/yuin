@@ -201,6 +201,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 unset($stmt);
 unset($pdo);
 
+// İlginç bir bilgi çek
+include_once '/home/yuinyeditepe/public_html/backend/didyouknowtr.php';
+if(function_exists('didYouKnow')) {
+    
+    $dyk = didYouKnow();
+}else{
+    
+    $dyk = 'Normal şartlarda burada size ilginç bilgiler vermemiz gerekmekteydi. Fakat her nedense PHP, bu işlemi yapan fonksiyonu bulamadığından yapamadık. Sayfayı yenileyip tekrar deneyebilirsiniz.';
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -235,30 +245,8 @@ unset($pdo);
 </head>
 <body>
 	
-	<!-- Page Preloder -->
-	<div id="preloder">
-		<div class="loader"></div>
-	</div>
-
-	<!-- Başlık -->
-	<header class="header-section">
-		<div class="container">
-			<!-- logo -->
-			<a href="index.php" class="site-logo"><img src="img/logo.png" style="width:40%;height:40%;" alt="Bilişim Kulübü Logo"></a>
-			<div class="nav-switch">
-				<i class="fa fa-bars"></i>
-			</div>
-			<div class="header-info">
-				<div class="hf-item">
-					<i class="fa fa-map-marker"></i>
-					<p><span>Kampüsteki konum:</span>Ticari Bilimler Fakültesi 1. Kat Z12-B</p>
-				</div>
-			</div>
-		</div>
-	</header>
-	<!-- Başlık sonu-->
-
-
+	<?=/* En üst barı göster */ file_get_contents('tmpller/headerEnUst.tmpl');?>
+	
 	<!-- Navbar alanı  -->
 	<nav class="nav-section">
 		<div class="container">
@@ -270,13 +258,13 @@ unset($pdo);
 				    if($login == 0) {
 				        
 				    ?>
-				    <li><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
+				    <li style="list-style-type: none;"><a href="login.php"><i class="fas fa-sign-in-alt"></i> Giriş yap</a></li>
 				    <?php
 				    
 				    }else{
 				    ?>
 				    
-				    <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Çıkış yap</a></li>
+				    <li style="list-style-type: none;"><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Çıkış yap</a></li>
 				    
 				    <?php
 				    }
@@ -300,7 +288,7 @@ unset($pdo);
 	<nav class="nav-section">
 		<div class="container">
 			<div class="nav-right">
-			    <li><a href=""> Tekrardan hoşgeldiniz sayın <?=$bilgi['name'] . ' ' . $bilgi['surname'];?></a></li>
+			    <li style="list-style-type: none;"><a href=""> Tekrardan hoşgeldiniz sayın <?=$bilgi['name'] . ' ' . $bilgi['surname'];?></a></li>
 			</div>
 			<ul class="main-menu">
 				<?=/* Üye navigasyon barını göster */ file_get_contents('tmpller/uyeEkMenu.tmpl');?>
@@ -324,8 +312,20 @@ unset($pdo);
 	</section>
 	<!-- Dergilik bitiş -->
 	
+	<?php
+	if($login) {
+	?>
+	<!-- Enteresan Bilgiler -->
+	<div class="alert alert-light">
+        <center><strong>Bunu biliyor muydunuz?</strong> <?=$dyk;?> <a onclick="window.location.reload(0);"><b style="color: blue;">Başka neyi bilmiyorum?</b></a></center>
+    </div>
+    <!-- Enteresan Bilgiler bitiş -->
+    <?php
+	}
+	?>
+    
 	<!-- Courses section -->
-	<section class="courses-section spad">
+	<section class="courses-section">
 		<div class="container">
 			<div class="section-title text-center">
 			    
@@ -336,7 +336,7 @@ unset($pdo);
 			        ?>
 			        <div class="alert alert-success">
                         
-                        <strong><i class="fas fa-check"></i> Başarılı!</strong> Etkinliğe katılım başarılı oldu! Katıldığınız tüm etkinlikleri "Brifing" sayfasında görebilirsiniz.
+                        <strong><i class="fas fa-check"></i> Başarılı!</strong> Etkinliğe katılım başarılı oldu! Katıldığınız tüm etkinlikleri "Etkinliklerim" sayfasında görebilirsiniz.
                     </div>
 			        <?php
 			    }
@@ -449,7 +449,7 @@ unset($pdo);
 		<center>
 		    <p><i>Birçok etkinlik arasından <?=htmlspecialchars($kacTane);?> adet etkinlik listelendi.</i><br><a href="?etkinlikGetir=<?=$kacTane+3;?>">Daha fazla etkinlik göster</a> | <a href="?etkinlikGetir=<?=$kacTane-3;?>">Daha az etkinlik göster</a></p>
 		    <br>
-		    <p><i>Bu sayfa <?=time()-$baslangic;?> saniyede <?=gethostname();?> üzerinde size özel olarak oluşturuldu.</i></p>
+		    <p><i>Bu sayfa <?=time()-$baslangic;?> saniyede <?=gethostname();?> sunucusu üzerinde size özel olarak oluşturuldu.</i></p>
 		</center>
 	</section>
 	<!-- Courses section end-->
