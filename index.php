@@ -53,7 +53,8 @@ if(!is_numeric($kacTane) || !is_int($kacTane) || $kacTane > 12 || $kacTane < 3) 
 
 $time = time();
 
-$stmt = $pdo->prepare("SELECT * FROM etkinlik GROUP BY date DESC LIMIT :kacTane"); // GROUP BY date DESC Tarihe göre sıralar.
+// Banner artık burada çekilmeyecek. Backend kısmına taşındı. Frontend üzerinden JS ile yükleme yapılacak.
+$stmt = $pdo->prepare("SELECT id,tag,info,location,slots FROM etkinlik GROUP BY date DESC LIMIT :kacTane"); // GROUP BY date DESC Tarihe göre sıralar.
 $stmt->bindParam(':kacTane', $kacTane, PDO::PARAM_INT);
 $stmt->execute();
 $etkinlikler = $stmt->fetchAll();
@@ -62,30 +63,21 @@ $availableActs = [];
 $fullActs = [];
 $expiredActs = [];
 
+$afisLink = [];
+
 foreach($etkinlikler as $kcts => $acts) {
     
     $thisId = $acts['id'];
+    $afisLink['banner-' . $thisId] = 'backend/asyncB64Loader.php?eid=' . $thisId;
     
     if( ($acts['date'] - 1800) >= $time) {
         
-        $stmt = $pdo->prepare("SELECT COUNT(uid) FROM etkinlikKatilim WHERE eid = :id");
+        $stmt = $pdo->prepare("SELECT COUNT(uid) AS katilim FROM etkinlikKatilim WHERE eid = :id");
         $stmt->bindParam(":id", $thisId, PDO::PARAM_STR);
         $stmt->execute();
         $joinedCount = $stmt->fetch();
-        $joinedCount = $joinedCount['COUNT(uid)'];
+        $joinedCount = $joinedCount['katilim'];
         $etkinlikler[$kcts]['joined'] = $joinedCount;
-        
-        /*switch($joinedCount) {
-            
-            case $acts['slots'] <= $joinedCount:
-                
-                $fullActs[] = $thisId;
-                break;
-            default:
-                $availableActs[] = $thisId;
-                break;
-            
-        }*/
         
         if($acts['slots'] <= $joinedCount) {
             
@@ -100,6 +92,9 @@ foreach($etkinlikler as $kcts => $acts) {
         continue;
     }
 }
+
+// Asenkronize yükleme için afiş linklerini JSON'a çevir. Frontend kısmına aktarılacak.
+$afisLink = json_encode($afisLink);
 
 $login = 0;
 
@@ -241,7 +236,6 @@ if(function_exists('didYouKnow')) {
 	  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
-
 </head>
 <body>
 	
@@ -328,7 +322,7 @@ if(function_exists('didYouKnow')) {
 	<section class="courses-section">
 		<div class="container">
 			<div class="section-title text-center">
-			    
+			    <br>
 			    <?php
 			    
 			    if(isset($_GET['joinAct'])) {
@@ -352,7 +346,7 @@ if(function_exists('didYouKnow')) {
 			    }
 			    
 			    ?>
-			    
+			    <br>
 				<h3>Son zamanlardaki etkinliklerimiz</h3>
 				<?php
 				
@@ -392,7 +386,7 @@ if(function_exists('didYouKnow')) {
 			        <!-- course item -->
 				<div class="col-lg-4 col-md-6 course-item">
 					<div class="course-thumb">
-						<img src="<?=$etkinlik['banner'];?>">
+						<img id="banner-<?=$etkinlik['id'];?>" src="img/loading.gif">
 						<br><br>
 						<div class="course-cat">
 							<span><?=$etkinlik['tag'];?></span>
@@ -441,7 +435,24 @@ if(function_exists('didYouKnow')) {
 			    
 			    ?>
 			    
-			    
+			    <script>
+                    /* YUIN Etkinliklerinin afişlerini asyncB64Loader.php API noktası ile afiş img taglarının src adreslerine at. */
+                    
+                    window.onload = function() {
+                    
+                        const afisLinkJSON = '<?=$afisLink;?>';
+                        const afisLinkList = JSON.parse(afisLinkJSON);
+                        
+                        var afisId;
+                        var afisLink;
+                        
+                        Object.entries(afisLinkList).forEach(item => {
+                            afisId = item[0];
+                            afisLink = item[1];
+                            document.getElementById(afisId).src = afisLink;
+                        });
+                    }
+                </script>
 				
 			</div>
 		</div>

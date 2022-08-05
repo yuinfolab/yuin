@@ -201,9 +201,19 @@ unset($pdo);
 						</div>
 						<h5><?=$admin['name'] . ' ' . $admin['surname'];?></h5>
 						<p><?=$admin['mission'];?></p><br>
+						<?php
+						if($login == 1) {
+						?>
 						<a href="tel:<?=$admin['phonenum'];?>"><button style="margin: 5px;" class="site-btn"><i class="fas fa-phone"></i> TELEFON ET</button></a>
 						<a href="https://api.whatsapp.com/send?phone=009<?=$admin['phonenum'];?>"><button style="background: #25D366;margin: 5px;" class="site-btn"><i class="fab fa-whatsapp"></i> WHATSAPP</button></a>
 						<a href="mailto:<?=$admin['email'];?>"><button style="background: #949494;margin: 5px;" class="site-btn"><i class="fas fa-envelope-open-text"></i> EPOSTA GÖNDER</button></a>
+						<?php
+						}else{
+						?>
+						<a class="site-btn" href="login.php?loginToProceed&goto=contact.php"><i class="fas fa-phone"></i><i class="fab fa-whatsapp"></i><i class="fas fa-envelope-open-text"></i> İletişim Bilgileri için Giriş Yapınız</a><br><br>
+						<?php
+						}
+						?>
 					</div>
 				</div>
 				

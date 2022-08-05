@@ -53,35 +53,6 @@ if($login == 1) {
     }
 }
 
-$views = false;
-if($stmt = $pdo->prepare("SELECT varval FROM stats WHERE cid = :cid")) {
-    
-    // PDO parametrelerini ayarla
-    $cidv = 1;
-    $stmt->bindParam(":cid", $cidv, PDO::PARAM_STR);
-    if($stmt->execute()) {
-        
-        $views = $stmt->fetch();
-        if(is_array($views)) {
-            
-            $views = (int)$views['varval'];
-        }
-    }
-    
-    if(is_numeric($views) && !isset($_GET['yorumlariGoster'])) {
-        
-        $views++;
-        
-        if($stmt = $pdo->prepare("UPDATE stats SET varval = :nvarval WHERE cid = :cid")) {
-            
-            // PDO parametrelerini ayarla
-            $stmt->bindParam(":cid", $cidv, PDO::PARAM_STR);
-            $stmt->bindParam(":nvarval", $views, PDO::PARAM_STR);
-            $stmt->execute();
-        }
-    }
-}
-
 unset($stmt);
 unset($pdo);
 
@@ -89,7 +60,7 @@ unset($pdo);
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-	<title>Yeditepe Üniversitesi Bilişim Kulübü | E-Sergi</title>
+	<title>Aramıza Hoşgeldin!</title>
 	<meta charset="UTF-8">
 	<meta name="description" content="Yeditepe Üniversitesi Bilişim Kulübü YUINFORMATICS'e hoş geldiniz!">
 	<meta name="keywords" content="yeditepe bilişim,yuin,yeditepe yuin,bilişim kulübü,bilgisayar kulübü,yuinformatics,informatics yeditepe">
@@ -162,7 +133,7 @@ unset($pdo);
 	<nav class="nav-section">
 		<div class="container">
 			<div class="nav-right">
-			    <li style="list-style-type: none;"><a href=""> Tekrardan hoşgeldiniz sayın <?=$bilgi['name'] . ' ' . $bilgi['surname'];?></a></li>
+			    <li style="list-style-type: none;"><a href=""> Hoşgeldiniz sayın <?=$bilgi['name'] . ' ' . $bilgi['surname'];?></a></li>
 			</div>
 			<ul class="main-menu">
 				<?=/* Üye navigasyon barını göster */ file_get_contents('tmpller/uyeEkMenu.tmpl');?>
@@ -181,7 +152,7 @@ unset($pdo);
 	<div class="site-breadcrumb">
 		<div class="container">
 			<a href="#"><i class="fa fa-home"></i> Ana Sayfa</a> <i class="fa fa-angle-right"></i>
-			<span>YUIN E-Sergi</span>
+			<span>Aramıza Hoşgeldin</span>
 		</div>
 	</div>
 	<!-- Breadcrumb section end -->
@@ -190,54 +161,10 @@ unset($pdo);
 	<!-- Courses section -->
 	<section class="contact-page spad pt-0">
 		<div class="container">
-			
-				<div class="section-title text-center">
-					<h3>E-Sergi</h3>
-					<p>FARE, Yön Tuşları ve WASD tuşlarını kullanarak sanal sergimizin içerisinde gezinebilirsiniz.</p>
-				</div>
-				<center>
-			    <iframe style="width: 85%; height: 720px" src="https://www.artsteps.com/embed/5fba826683d339612bf4c689/560/315" frameborder="0" allowfullscreen></iframe>
-			    <p><i class="fas fa-eye"></i> <i>E-Sergi <?=$views;?> kere görüntülendi.</i></p>
-			    <?php
-			    
-			    if(isset($_GET['yorumlariGoster'])) {
-			        
-			        if($login) {
-			            
-			            $shoutboxIsim = $bilgi['name'] . ' ' . $bilgi['surname'];
-			        }else{
-			            
-			            $shoutboxIsim = 'Ziyaretçi';
-			        }
-			        
-			        ?>
-			        
-			        <?php
-			        
-			    }else{
-			    
-			    ?>
-			        <!--<a href="?yorumlariGoster"><button class="site-btn"><i class="fas fa-comments"></i> Yorumlar</button></a>-->
-			    <?php
-			    
-			    }
-			    
-			    ?>
-			    <p>Paylaşımcı olmak için <b>yuinformaticsergi@gmail.com, yuinformatics@gmail.com veya yuin@yeditepe.edu.tr</b> eposta adreslerinden bizimle iletişime geçebilirsiniz<br><b>VEYA</b><br>Alttaki butona tıklayarak hazır şablon ile sergi eser paylaşımı bildiriminde bulunabilirsiniz</p>
-			    <a href="mailto:yuinformaticsergi@gmail.com?subject=SERGİ ESER PAYLAŞIMI&body=Eserin beyaz bir arkaplanda görünür bir şekilde fotoğraflanması
-%0D%0A %0D%0A
-Paylaşımcı Ad-Soyad: (Örn: Baransel Çelik)
-%0D%0A
-Eser Markası ve Modeli: (Örn: Nokia 6310i)
-%0D%0A
-*Eser Hakkında Bilgi: (Örn: Nokia 6310i, GPRS üzerinden internete bağlanılabildiğini gösteren ilk telefondur. 47 milimetre genişliğine ve 129 milimetre uzunluğuna sahip olan bu telefon, çıkarılabilir. Li-Po 600 mAh bataryası ile 17 gün boyunca açık kalabilmektedir.)
-%0D%0A
-**Eserin Piyasaya Sürüldüğü Tarih: (Örn: 2001) 
-%0D%0A %0D%0A
-*Eğer eser hakkında bir bilgi yok ise bu alan boş bırakılabilir.
-%0D%0A
-**Tam tarih bilinmiyorsa şu şekilde de yazılabilir; 2000’li yıllar."><button class="site-btn"><i class="fas fa-hand-holding-medical"></i> Paylaşımcı olmak istiyorum</button></a>
-			    </center>
+			<div class="section-title text-center">
+				<h3>Aramıza Hoşgeldin!</h3>
+				
+			</div>
 		</div>
 	</section>
 	<!-- Courses section end-->

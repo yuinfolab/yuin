@@ -407,7 +407,7 @@ unset($pdo);
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-	<title>Yeditepe Üniversitesi Bilişim Kulübü | Aramıza katıl</title>
+	<title>Yeditepe Üniversitesi Bilişim Kulübü | Katıl</title>
 	<meta charset="UTF-8">
 	<meta name="description" content="Yeditepe Üniversitesi Bilişim Kulübü YUINFORMATICS'e hoş geldiniz!">
 	<meta name="keywords" content="yeditepe bilişim,yuin,yeditepe yuin,bilişim kulübü,bilgisayar kulübü,yuinformatics,informatics yeditepe">
@@ -572,7 +572,7 @@ unset($pdo);
 	<div class="site-breadcrumb">
 		<div class="container">
 			<a href="#"><i class="fa fa-home"></i> Ana Sayfa</a> <i class="fa fa-angle-right"></i>
-			<span>Aramıza katıl</span>
+			<span>Katıl</span>
 		</div>
 	</div>
 	<!-- Breadcrumb section end -->
@@ -581,7 +581,7 @@ unset($pdo);
 		<div class="container">
 			
 				<div class="section-title text-center">
-					<h3>Aramıza Katıl</h3>
+					<h3>Katıl</h3>
 					<h5>Her şey senin için. Bilişim Kulübü'nün sunduğu tüm imkanlardan yararlanmak için hemen aramıza katıl :)</h5>
 					<br>
 					<p style="margin:20px;">AKADEMİK7 ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri AKADEMİ7 üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer AKADEMİ7 şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi elle girerek manuel olarak kaydolabilmektesiniz.</p>

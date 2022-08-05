@@ -1,5 +1,10 @@
 <?php
 
+/*
+    Hürriyet Gazetesinden çalınmıştır :)
+    https://www.hurriyet.com.tr/galeri-bunlari-biliyor-musunuz-40123170
+*/
+
 function didYouKnow() {
     
     $dyk = [
@@ -54,6 +59,7 @@ function didYouKnow() {
     
     $git = 'YUIN Club (yuin.yeditepe.edu.tr) websitesi ve yazılımı açık kaynak kodludur ve YUINFOLAB GitHub üzerinden geliştirilebilir. <a href="https://github.com/yuinfolab/yuin" target="_blank">Repo link</a>';
     
+    // 4'te 1 olasılık ile $git içinde yazan yazıyı gösterecek
     $yazitura = rand(1,4);
     if($yazitura === 1) {
         

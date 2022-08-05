@@ -202,3 +202,16 @@ function randomize($len = 18) {
 	$randstr = substr(str_shuffle(MD5(microtime())), 0, $len);
 	return $randstr;
 }
+
+function sendCacheHdrs($str = '+1 week') {
+    
+    $time = time();
+    $timestr = strtotime($str);
+    $absolute = $timestr - $time;
+    
+    $val = date('D, d M Y h:i:s', $timestr);
+    $val = $val . ' GMT';
+    
+    header('Expires: ' . $val);
+    header('Cache-Control: public, max-age=' . $absolute . ';');
+}

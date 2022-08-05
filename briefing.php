@@ -110,7 +110,7 @@ unset($pdo);
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-	<title>Yeditepe Üniversitesi Bilişim Kulübü | İletişim</title>
+	<title>Yeditepe Üniversitesi Bilişim Kulübü | Etkinliklerim</title>
 	<meta charset="UTF-8">
 	<meta name="description" content="Yeditepe Üniversitesi Bilişim Kulübü YUINFORMATICS'e hoş geldiniz!">
 	<meta name="keywords" content="yeditepe bilişim,yuin,yeditepe yuin,bilişim kulübü,bilgisayar kulübü,yuinformatics,informatics yeditepe">
@@ -202,7 +202,7 @@ unset($pdo);
 	<div class="site-breadcrumb">
 		<div class="container">
 			<a href="#"><i class="fa fa-home"></i> Aa Sayfa</a> <i class="fa fa-angle-right"></i>
-			<span>Brifing</span>
+			<span>Etkinliklerim</span>
 		</div>
 	</div>
 	<!-- Breadcrumb section end -->
