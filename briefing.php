@@ -64,7 +64,7 @@ if($login == 1) {
 $etkListe = '';
 $error = '';
 
-if($stmt = $pdo->prepare("SELECT id,banner,tag,info,location,date FROM etkinlikKatilim INNER JOIN etkinlik ON etkinlikKatilim.eid=etkinlik.id WHERE uid = :uid")) {
+if($stmt = $pdo->prepare("SELECT id,tag,info,location,date FROM etkinlikKatilim INNER JOIN etkinlik ON etkinlikKatilim.eid=etkinlik.id WHERE uid = :uid")) {
     
     $stmt->bindParam(":uid", $_SESSION['uid'], PDO::PARAM_STR);
     if($stmt->execute()) {
@@ -73,35 +73,15 @@ if($stmt = $pdo->prepare("SELECT id,banner,tag,info,location,date FROM etkinlikK
     }
 }
 
-/*
+$afisLink = [];
+foreach($etkListe as $etk) {
+    
+    $thisId = $etk['id'];
+    $afisLink['banner-' . $thisId] = 'backend/asyncB64Loader.php?eid=' . $thisId;
+}
 
-10.05.2020 Optimizasyon. Bu kısım komple kaldırılıp üstteki sorguya inner join eklendi.
-
-if(!empty($etkListe)) {
-
-    if(is_array($etkListe)) {
-        
-        $error .= "Üzgünüm (1) beklenmedik bir hata meydana geldi!" . PHP_EOL;
-    }
-    
-    $sqlqry = 'SELECT * FROM etkinlik WHERE';
-    foreach($etkListe[0] as $etkId) {
-        
-        $sqlqry .= ' id = ' . $etkId . ' AND';
-    }
-    $sqlqry = substr($sqlqry, 0, strrpos($sqlqry, ' '));
-    
-    if($stmt = $pdo->prepare($sqlqry)) {
-        
-        if($stmt->execute()) {
-            
-            $etkListe = $stmt->fetchAll();
-        }
-    }
-}else{
-    
-    
-}*/
+// Asenkronize yükleme için afiş linklerini JSON'a çevir. Frontend kısmına aktarılacak.
+$afisLink = json_encode($afisLink);
 
 unset($stmt);
 unset($pdo);
@@ -229,7 +209,7 @@ unset($pdo);
 				?>
 				<div class="col-lg-4 col-md-6 course-item">
 					<div class="course-thumb">
-						<img src="<?=$etk['banner'];?>">
+						<img id="banner-<?=$etk['id'];?>" src="img/loading.gif">
 						<div class="course-cat">
 							<span><?=$etk['tag'];?></span>
 						</div>
@@ -254,6 +234,24 @@ unset($pdo);
 				}
 				?>
 				</div>
+				<script>
+                    /* YUIN Etkinliklerinin afişlerini asyncB64Loader.php API noktası ile afiş img taglarının src adreslerine at. */
+                    
+                    window.onload = function() {
+                    
+                        const afisLinkJSON = '<?=$afisLink;?>';
+                        const afisLinkList = JSON.parse(afisLinkJSON);
+                        
+                        var afisId;
+                        var afisLink;
+                        
+                        Object.entries(afisLinkList).forEach(item => {
+                            afisId = item[0];
+                            afisLink = item[1];
+                            document.getElementById(afisId).src = afisLink;
+                        });
+                    }
+                </script>
 			</div>
 		</div>
 	</section>

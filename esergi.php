@@ -196,33 +196,9 @@ unset($pdo);
 					<p>FARE, Yön Tuşları ve WASD tuşlarını kullanarak sanal sergimizin içerisinde gezinebilirsiniz.</p>
 				</div>
 				<center>
-			    <iframe style="width: 85%; height: 720px" src="https://www.artsteps.com/embed/5fba826683d339612bf4c689/560/315" frameborder="0" allowfullscreen></iframe>
+			    <iframe id="esergiFrame" style="width: 85%; height: 720px" src="img/loading.gif" frameborder="0" allowfullscreen></iframe>
 			    <p><i class="fas fa-eye"></i> <i>E-Sergi <?=$views;?> kere görüntülendi.</i></p>
-			    <?php
 			    
-			    if(isset($_GET['yorumlariGoster'])) {
-			        
-			        if($login) {
-			            
-			            $shoutboxIsim = $bilgi['name'] . ' ' . $bilgi['surname'];
-			        }else{
-			            
-			            $shoutboxIsim = 'Ziyaretçi';
-			        }
-			        
-			        ?>
-			        
-			        <?php
-			        
-			    }else{
-			    
-			    ?>
-			        <!--<a href="?yorumlariGoster"><button class="site-btn"><i class="fas fa-comments"></i> Yorumlar</button></a>-->
-			    <?php
-			    
-			    }
-			    
-			    ?>
 			    <p>Paylaşımcı olmak için <b>yuinformaticsergi@gmail.com, yuinformatics@gmail.com veya yuin@yeditepe.edu.tr</b> eposta adreslerinden bizimle iletişime geçebilirsiniz<br><b>VEYA</b><br>Alttaki butona tıklayarak hazır şablon ile sergi eser paylaşımı bildiriminde bulunabilirsiniz</p>
 			    <a href="mailto:yuinformaticsergi@gmail.com?subject=SERGİ ESER PAYLAŞIMI&body=Eserin beyaz bir arkaplanda görünür bir şekilde fotoğraflanması
 %0D%0A %0D%0A
@@ -238,6 +214,12 @@ Eser Markası ve Modeli: (Örn: Nokia 6310i)
 %0D%0A
 **Tam tarih bilinmiyorsa şu şekilde de yazılabilir; 2000’li yıllar."><button class="site-btn"><i class="fas fa-hand-holding-medical"></i> Paylaşımcı olmak istiyorum</button></a>
 			    </center>
+			    <script>
+			    window.onload = function() {
+			        
+			        document.getElementById("esergiFrame").src = "https://www.artsteps.com/embed/5fba826683d339612bf4c689/560/315";
+			    }
+			    </script>
 		</div>
 	</section>
 	<!-- Courses section end-->
