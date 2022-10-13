@@ -120,18 +120,25 @@ if(isset($_GET['administrateAct']) && !empty($_GET['administrateAct']) && is_num
     }
     
     $specificAct = 1;
-    
-    if($stmt = $pdo->prepare("SELECT * FROM etkinlik WHERE id = :id")) {
+    $afisLink = [];
+    if($stmt = $pdo->prepare("SELECT id,tag,info,location,slots,date FROM etkinlik WHERE id = :id")) {
         
         $stmt->bindParam(":id", $actToAdmin, PDO::PARAM_STR);
         if($stmt->execute()) {
             
             $acts = $stmt->fetch();
+            
+            foreach($acts as $k => $v) {
+                
+                $thisId = $acts['id'];
+                $afisLink['banner-' . $thisId] = 'backend/asyncB64Loader.php?eid=' . $thisId;
+            }
         }else{
             
             exit;
         }
     }
+    $afisLink = json_encode($afisLink);
     
     if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'editAct') {
         
@@ -697,8 +704,8 @@ unset($pdo);
 			        <center>
 				    <div class="col-lg-6">
 				        <label for="banner"><p>Etkinlik afişi<br><b>NOT: Yüksek çözünürlüklü fotoğraflar doğru yüklenmeyebilir. Yükledikten sonra fotoğrafı kontrol edin.</b></p></label><br>
-				        <img src="<?=$acts['banner'];?>" alt="banner" style="width:540px;height:540px;"><br>
-					    <input type="file" id="banner" name="banner" value="<?=$acts['banner'];?>">
+				        <img id="banner-<?=$acts['id'];?>" src="img/loading.gif" alt="banner" style="width:540px;height:540px;"><br>
+					    <input id="banner-<?=$acts['id'];?>" type="file" id="banner" name="banner" value="">
 				    </div>
 				    <div class="col-lg-6">
 				        <label for="tag"><p>Etkinlik etiketi <b>(Afişin altındaki mavi kutucuk)</b></p></label>
@@ -714,7 +721,7 @@ unset($pdo);
 				    </div>
 				    <div class="col-lg-6">
 				        <label for="date"><p>Etkinlik tarihi</p></label>
-					    <input type="date" id="date" name="date" value="<?=date($acts['date'],'d.m.Y');?>" required>
+					    <input type="date" id="date" name="date" value="<?=date('d/m/Y', $acts['date']);?>" required>
 				    </div>
 				    <div class="col-lg-6">
 				        <label for="datetime"><p>Etkinlik saati</p></label>
@@ -917,6 +924,25 @@ https://www.twitter.com/YuInformatics</i></pre>
 		        </center>
 	</section>
 	<!-- Courses section end-->
+	
+	<script>
+        /* YUIN Etkinliklerinin afişlerini asyncB64Loader.php API noktası ile afiş img taglarının src adreslerine at. */
+        
+        window.onload = function() {
+            
+            const afisLinkJSON = '<?=$afisLink;?>';
+            const afisLinkList = JSON.parse(afisLinkJSON);
+            
+            var afisId;
+            var afisLink;
+            
+            Object.entries(afisLinkList).forEach(item => {
+                afisId = item[0];
+                afisLink = item[1];
+                document.getElementById(afisId).src = afisLink;
+            });
+        }
+    </script>
 
 	<?=/* Footer kısmını göster */ file_get_contents('tmpller/footer.tmpl');?>
 

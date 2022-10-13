@@ -268,6 +268,7 @@ if(isset($_GET['kurumdisi'])) {
 				<h3>YUIN Club'a Akademik7 ile giriş yap</h3>
 				<p>Kulübümüzle ilgili tüm işlemlerinizi buradan gerçekleştirebilirsiniz<br><br><i class="fas fa-signal"></i> <i>Anlık aktif üye sayısı: <?=$suanaktif;?></i><br><i class="fas fa-users"></i> <i>Sitemize kayıtlı toplam üye sayısı: <?=$kayitli;?></i></p>
 				<br>
+				<h4>Eğer daha önceden websitemize kaydolmadıysanız lütfen <a href="join.php">bu sayfa üzerinden OBS ile hızlı katıl</a> seçimini yapınız</h4>
 				<?php
 			    
 			    if(isset($_GET['loginToProceed'])) {

@@ -54,7 +54,7 @@ if(!is_numeric($kacTane) || !is_int($kacTane) || $kacTane > 12 || $kacTane < 3) 
 $time = time();
 
 // Banner artık burada çekilmeyecek. Backend kısmına taşındı. Frontend üzerinden JS ile yükleme yapılacak.
-$stmt = $pdo->prepare("SELECT id,tag,info,location,slots FROM etkinlik GROUP BY date DESC LIMIT :kacTane"); // GROUP BY date DESC Tarihe göre sıralar.
+$stmt = $pdo->prepare("SELECT id,tag,info,location,date,slots FROM etkinlik GROUP BY date DESC LIMIT :kacTane"); // GROUP BY date DESC Tarihe göre sıralar.
 $stmt->bindParam(':kacTane', $kacTane, PDO::PARAM_INT);
 $stmt->execute();
 $etkinlikler = $stmt->fetchAll();

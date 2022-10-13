@@ -442,7 +442,7 @@ unset($pdo);
     
     function a7formprompt() {
         
-        document.getElementById("formInfo").innerHTML = "Akademik7 ile katılım formu";
+        document.getElementById("formInfo").innerHTML = "Yeditepe OBS ile katılım formu";
         document.getElementById("formDesc").innerHTML = "OBS veya AKADEMİK7 (A7) sistemlerine ait kullanıcı adı ve şifre bilgilerinizi girerek kulübümüze kaydolmanız için gerekli bilgilerin otomatik olarak çekilmesini sağlayabilirsiniz.";
         
         document.getElementById("a7katilim").style.display = "block";
@@ -476,7 +476,12 @@ unset($pdo);
         
         // Bazı parametreleri düzelt
         var telefonNo = a7jsondata["telno"];
-        telefonNo = "0" + telefonNo;
+        
+        if(telefonNo != null) {
+            telefonNo = "0" + telefonNo;
+        }else{
+            telefonNo = "";
+        }
         
         var ogrenciNo = document.getElementById("a7user").value;
         ogrenciNo = ogrenciNo.substring(1);
@@ -494,15 +499,17 @@ unset($pdo);
         document.getElementById("user").readOnly = true;
         document.getElementById("fak").readOnly = true;
         document.getElementById("department").readOnly = true;
-        document.getElementById("phonenum").readOnly = true;
-        document.getElementById("email").readOnly = true;
+        
+        // 13.10.2022 Telefon numarası ve eposta kısımlarını otomatik doldurma. Bazı parametreler yeni öğrencilerde OBS'den hatalı bir şekilde gelebiliyor.
+        /*document.getElementById("phonenum").readOnly = true;
+        document.getElementById("email").readOnly = true;*/
         
         manuelformprompt();
     }
     
     function parseA7Error() {
         
-        document.getElementById("a7error").innerHTML = "A7 / OBS Kullanıcı adı hatalı! Lütfen <u>OBS'ye veya A7'ye giriş yaparken girdiğiniz bilgilerin aynısını doğru ve eksiksiz bir şekilde girdiğinizden emin olunuz!</u><br><br>Eğer tüm bilgileriniz eksiksiz ve doğru ise (tekrar kontrol edin), YUInformatics Yönetim Kuruluna bu durumu İletişim sayfasından bildirebilirsiniz.";
+        document.getElementById("a7error").innerHTML = "A7 / OBS Kullanıcı adı hatalı! Lütfen <u>OBS'ye veya A7'ye giriş yaparken girdiğiniz bilgilerin aynısını doğru ve eksiksiz bir şekilde girdiğinizden emin olunuz!</u><br>Eğer tüm bilgileriniz eksiksiz ve doğru ise (tekrar kontrol edin), <a href=\"join.php\">Buradan</a> Bilgilerini Kendin Gir butonuna basarak kaydolabilirsiniz.";
     }
     
     $(document).ready(function() {
@@ -584,10 +591,10 @@ unset($pdo);
 					<h3>Katıl</h3>
 					<h5>Her şey senin için. Bilişim Kulübü'nün sunduğu tüm imkanlardan yararlanmak için hemen aramıza katıl :)</h5>
 					<br>
-					<p style="margin:20px;">AKADEMİK7 ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri AKADEMİ7 üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer AKADEMİ7 şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi elle girerek manuel olarak kaydolabilmektesiniz.</p>
+					<p style="margin:20px;">Yeditepe Üniversitesi OBS ile giriş yaparak kulübümüze kaydolabilirsiniz. Bu durumda YUIN Club sistemimiz kulübümüze kaydınız için gereken bilgileri OBS üzerinden otomatik olarak çekecek ve kaydınız birkaç saniyede tamamlanacaktır. Eğer OBS şifrenizi paylaşmak istemezseniz kişisel bilgilerinizi <b>Bilgilerini kendin gir</b> sayfasında elle girerek manuel olarak kaydolabilmektesiniz.</p>
 					<h5><i>Yeditepe Üniversitesi öğrencisiyseniz:</i></h5><br>
-					<a href="#form"><button class="site-btn" onclick="a7formprompt()">AKADEMİK7 ile giriş yaparak hızlı katıl</button></a>
-					<a href="#form"><button class="site-btn" onclick="manuelformprompt()">Manuel katılım sistemi</button></a>
+					<a href="#form"><button class="site-btn" onclick="a7formprompt()">OBS ile hızlı katıl</button></a>
+					<a href="#form"><button class="site-btn" onclick="alert('Kaydolma formu sayfanın altında açıldı. Lütfen kaydolmak için aşağı kaydır.'); manuelformprompt()">Bilgilerini kendin gir</button></a>
 					<br><br><h5><i>Yeditepe Üniversitesi <b>öğrencisi <u>değilseniz</u>:<b></i></h5><br>
 					<a href="#form"><button class="site-btn" onclick="outsidestudentformprompt()">Yeditepe dışı katılım sistemi</button></a>
 					<br><br>
@@ -597,15 +604,15 @@ unset($pdo);
 				<div class="contact-form spad pb-0">
 				<div style="display: none;" id="a7katilim" class="comment-form --contact">
 				    <div id="form" class="section-title text-center">
-				        <h3 id="formInfo">Akademik7 ile katılım formu</h3>
+				        <h3 id="formInfo">OBS ile katılım formu</h3>
 				        <p id="formDesc">OBS veya AKADEMİK7 (A7) sistemlerine ait kullanıcı adı ve şifre bilgilerinizi girerek kulübümüze kaydolmanız için gerekli bilgilerin otomatik olarak çekilmesini sağlayabilirsiniz.</p>
 				    </div>
 				    <center>
 				    <div class="col-lg-4">
-						<input type="text" id="a7user" name="user" placeholder="Akademik7 / OBS Kullanıcı Adı" required>
+						<input type="text" id="a7user" name="user" placeholder="Yeditepe Mobil / OBS Kullanıcı Adı" required>
 					</div>
 					<div class="col-lg-4">
-						<input type="password" id="a7pass" name="pass" placeholder="Akademik7 / OBS Şifreniz" required>
+						<input type="password" id="a7pass" name="pass" placeholder="Yeditepe Mobil / OBS Şifreniz" required>
 					</div>
 					<div class="col-lg-4">
 						<center><div class="g-recaptcha" data-sitekey="6LfwnO8UAAAAANhxO1zsoDnlgAu8_KK0PnB4AqmW"></div></center>
@@ -614,7 +621,7 @@ unset($pdo);
 						<div class="text-center">
 							<br><p><i>Alttaki Kişisel bilgilerimi talep et butonuna tıklayarak üstte belirttiğim Öğrenci Numaram, A7 / OBS şifrem kullanılarak İsim, Soyisim, Telefon numaram, Eposta adresim, Fakültem, Bölümüm gibi kişisel bilgilerimin Akademik7 sistemi üzerinden bu sayfaya aktarılmasını kabul ediyorum.</i></p>
 					        <h5 style="color:red;"><b id="a7error"></b></h5>
-					        <button style="margin:20px;" id="a7submit" class="site-btn">Kişisel bilgilerimi talep et</button>
+					        <button style="margin:20px;" id="a7submit" class="site-btn">Bilgilerimi talep et</button>
 						</div>
 					</div>
 					</center>

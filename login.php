@@ -120,6 +120,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error .= "Lütfen robot olmadığını kanıtla." . PHP_EOL;
     }
     
+    // OBS kullanıcı tipi girişleri normalize et
+    $user = str_replace('U', null, $user);
+    $user = str_replace('H', null, $user);
+    
     if(empty($error)) {
         
         if($stmt = $pdo->prepare("SELECT uid, status, user, pass FROM users WHERE user = :user")) {
@@ -166,7 +170,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                         exit;
                     }else{
                         
-                        $error .= "Eksik veya hatalı şifre girdiniz, tekrar deneyin." . PHP_EOL;
+                        $error .= "Eksik veya hatalı şifre girdiniz. Bu alana <u>sitemize kaydolurken</u> belirlediğiniz şifreyi yazmanız gerekmektedir." . PHP_EOL;
                     }
                 }else{
                     
@@ -313,7 +317,7 @@ if(isset($_GET['kurumdisi'])) {
 					    <input id="loginparam" type="text" name="user" placeholder="<?php if(!$kurumdisi): echo 'Öğrenci numaranız'; else: echo 'Telefon numaranız'; endif; ?>" required>
 				    </div>
 				    <div class="col-lg-6">
-					    <input type="password" name="pass" placeholder="YUIN Club sifreniz" autocomplete="off" required>
+					    <input type="password" name="pass" placeholder="Belirlediğiniz Şifreniz" autocomplete="off" required>
 				    </div>
 				    <div class="col-lg-6">
 					    <label for="ki">Yeditepe Üniversitesi öğrencisiyim <b>(Kurum içi giriş)</b></label><br>
@@ -329,7 +333,7 @@ if(isset($_GET['kurumdisi'])) {
 				<br>
 				<div class="col-lg-12">
 					<div class="text-center">
-					    <p>Kulübümüze üye değilmisin? <a href="join.php">Buraya tıklayarak</a> aramıza katılabilirsin</p>
+					    <h5>Kulübümüze üye değilmisin? <a href="join.php">Buraya tıklayarak</a> aramıza katılabilirsin</h5><br>
 						<button class="site-btn">YUIN Hesabı ile Giriş yap</button>
 					</div>
 				</div>
