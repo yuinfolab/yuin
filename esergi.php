@@ -199,8 +199,8 @@ unset($pdo);
 			    <iframe id="esergiFrame" style="width: 85%; height: 720px" src="img/loading.gif" frameborder="0" allowfullscreen></iframe>
 			    <p><i class="fas fa-eye"></i> <i>E-Sergi <?=$views;?> kere görüntülendi.</i></p>
 			    
-			    <p>Paylaşımcı olmak için <b>yuinformaticsergi@gmail.com, yuinformatics@gmail.com veya yuin@yeditepe.edu.tr</b> eposta adreslerinden bizimle iletişime geçebilirsiniz<br><b>VEYA</b><br>Alttaki butona tıklayarak hazır şablon ile sergi eser paylaşımı bildiriminde bulunabilirsiniz</p>
-			    <a href="mailto:yuinformaticsergi@gmail.com?subject=SERGİ ESER PAYLAŞIMI&body=Eserin beyaz bir arkaplanda görünür bir şekilde fotoğraflanması
+			    <p>Paylaşımcı olmak için <b>yuinformatics@gmail.com, yuinformatics@gmail.com veya yuin@yeditepe.edu.tr</b> eposta adreslerinden bizimle iletişime geçebilirsiniz<br><b>VEYA</b><br>Alttaki butona tıklayarak hazır şablon ile sergi eser paylaşımı bildiriminde bulunabilirsiniz</p>
+			    <a href="mailto:yuinformatics@gmail.com?subject=SERGİ ESER PAYLAŞIMI&body=Eserin beyaz bir arkaplanda görünür bir şekilde fotoğraflanması
 %0D%0A %0D%0A
 Paylaşımcı Ad-Soyad: (Örn: Baransel Çelik)
 %0D%0A
