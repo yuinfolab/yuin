@@ -189,12 +189,12 @@ unset($pdo);
 				        <td>Yeditepe Kontenjan</td>
 				        <td>Yeditepe Üniversitesi'ne giren öğrenci kontenjan bilgisini getirir</td>
 				        <td><a href="?arac=kontenjan" class="site-btn"><i class="fas fa-arrow-alt-circle-right"></i></a></td>
-				    </tr>-->
+				    </tr>
 				    <tr>
 				        <td>Yeditepe Harita</td>
 				        <td>Bilgi İşlem Koordinatörlüğü tarafından sağlanan Yeditepe Üniversitesi 26 Ağustos Kampüsü haritasını gösterir</td>
 				        <td><a href="?arac=harita"><i class="fas fa-arrow-alt-circle-right"></i></a></td>
-				    </tr>
+				    </tr>-->
 				    <tr>
 				        <td>Bağlantı Bilgilerim</td>
 				        <td>Tarayıcınızdan bize gelen veriyi gösterir. (IP Adresiniz, Tarayıcı bilgileriniz vb.)</td>
