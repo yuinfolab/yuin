@@ -215,3 +215,16 @@ function sendCacheHdrs($str = '+1 week') {
     header('Expires: ' . $val);
     header('Cache-Control: public, max-age=' . $absolute . ';');
 }
+
+function maskInfo($infoTxt) {
+    
+    $textLength = strlen($text);
+    
+    if ($textLength <= 2)
+        return $text;
+    
+    $maskedPart = str_repeat('*', $textLength - 2);
+    $unmaskedPart = substr($text, $textLength - 2, 2);
+    
+    return $maskedPart . $unmaskedPart;
+}

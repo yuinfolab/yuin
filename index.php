@@ -28,7 +28,7 @@ ve evet. Şaheser bana ait. Eski dosyada siteye 4 kişi girince çöküyordu.
 
 session_start();
 
-$baslangic = time();
+$baslangic = microtime();
 
 define('YUIN',1);
 
@@ -460,7 +460,7 @@ if(function_exists('didYouKnow')) {
 		<center>
 		    <p><i>Birçok etkinlik arasından <?=htmlspecialchars($kacTane);?> adet etkinlik listelendi.</i><br><a href="?etkinlikGetir=<?=$kacTane+3;?>">Daha fazla etkinlik göster</a> | <a href="?etkinlikGetir=<?=$kacTane-3;?>">Daha az etkinlik göster</a></p>
 		    <br>
-		    <p><i>Bu sayfa <?=time()-$baslangic;?> saniyede <?=gethostname();?> sunucusu üzerinde size özel olarak oluşturuldu.</i></p>
+		    <p><i>Bu sayfa <?=microtime()-$baslangic;?> saniyede <?=gethostname();?> sunucusu üzerinde size özel olarak oluşturuldu.</i></p>
 		</center>
 	</section>
 	<!-- Courses section end-->

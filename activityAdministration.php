@@ -250,7 +250,7 @@ if(isset($_GET['administrateAct']) && !empty($_GET['administrateAct']) && is_num
         
     }
     
-}else if(isset($_GET['viewActAttendance']) && !empty($_GET['viewActAttendance']) && is_numeric($_GET['viewActAttendance'])) {
+}else if(isset($_GET['viewActAttendance']) && !empty($_GET['viewActAttendance']) && is_numeric($_GET['viewActAttendance']) && isset($_SESSION['veriSorumlusu']) && $_SESSION['veriSorumlusu']) {
     
     $actToView = $_GET['viewActAttendance'];
     if($stmt = $pdo->prepare("SELECT * FROM etkinlik INNER JOIN etkinlikKatilim ON etkinlik.id=etkinlikKatilim.eid INNER JOIN users ON users.uid=etkinlikKatilim.uid WHERE id = :id")) {
@@ -782,6 +782,12 @@ unset($pdo);
 				        }
 				    </script>
 				    <center><h6><?=$_GET['viewActAttendance'];?> numaralı etkinliğe katılan üyeler</h6>
+				    
+				    <?php
+				    // Veri sorumlusu kontrolü
+				    if(isset($_SESSION['veriSorumlusu']) && $_SESSION['veriSorumlusu']) {
+				    ?>
+				    
 				    <form id="epostaForm" class="comment-form --contact" method="post" enctype="multipart/form-data" style="display: none;">
 				        <input type="hidden" name="action" value="sendMail">
 				        <h5>Katılacak tüm üyelere toplu eposta gönder</h5><br>
@@ -869,6 +875,15 @@ https://www.twitter.com/YuInformatics</i></pre>
 				    ?>
 				    </table>
 				    <?php
+				    }else{
+				        // Veri sorumlusu değil ise sayfası
+				        ?>
+				        <div class="section-title text-center">
+        		            <h2 style="color:red;">Erişim Engellendi</h2>
+        		            <p>Kişisel Verileri Koruma Kanunu kapsamında veri sorumlusu olmadığınız için bu sayfaya maalesef erişemezsiniz.</p>
+        		        </div>
+				        <?php
+				    }
 				}
 				?>
 				    

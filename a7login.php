@@ -139,7 +139,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(empty($error)) {
         
         $user = $kisisel['ogrenciNo'];
-        if($stmt = $pdo->prepare("SELECT uid, status, user FROM users WHERE user = :user")) {
+        if($stmt = $pdo->prepare("SELECT users.uid, status, user, pass, veriSorumlu.veriSorumlusu FROM users INNER JOIN veriSorumlu ON users.uid=veriSorumlu.uid WHERE user = :user")) {
             
             // PDO parametrelerini ata
             $stmt->bindParam(":user", $user, PDO::PARAM_STR);
@@ -147,8 +147,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 if($stmt->rowCount() == 1 && $row = $stmt->fetch()) {
                     
+                    $veriSorumlu = false;
                     $uid = $row['uid'];
                     $user = $row['user'];
+                    
+                    if(isset($row['veriSorumlusu']) && $row['veriSorumlusu'] == 1)
+                        $veriSorumlu = true;
                     
                     if($row['status'] == 0) {
                         
@@ -165,6 +169,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $_SESSION['uid'] = $uid;
                     $_SESSION['user'] = $user;
                     $_SESSION['ip'] = getUserIP();
+                    if($veriSorumlu)
+                            $_SESSION['veriSorumlusu'] = 1;
                     
                     unset($stmt);
                     unset($pdo);

@@ -77,11 +77,13 @@ if($bilgi['permlevel'] < 2) {
 
 $specificUser = 0;
 
-if(isset($_GET['administrateUser']) && !empty($_GET['administrateUser']) && is_numeric($_GET['administrateUser'])) {
+// Bu kısım kullanıcı bilgileri düzenleniyorsa çalışır
+if(isset($_GET['administrateUser']) && !empty($_GET['administrateUser']) && is_numeric($_GET['administrateUser']) && isset($_SESSION['veriSorumlusu']) && $_SESSION['veriSorumlusu']) {
     
     $userToAdmin = $_GET['administrateUser'];
     $specificUser = 1;
     
+    // Mevcut kullanıcı parametrelerini al
     if($stmt = $pdo->prepare("SELECT * FROM users WHERE uid = :uid")) {
         
         $stmt->bindParam(":uid", $userToAdmin, PDO::PARAM_STR);
@@ -248,7 +250,7 @@ if(isset($_GET['administrateUser']) && !empty($_GET['administrateUser']) && is_n
     }
     
 }else{
-    
+    // Bu kısım sayfaya girilirken kullanıcı listesinin oluşturulması için çalışır
     if($stmt = $pdo->prepare("SELECT * FROM users")) {
         
         if($stmt->execute()) {
@@ -258,7 +260,8 @@ if(isset($_GET['administrateUser']) && !empty($_GET['administrateUser']) && is_n
     }
 }
 
-if(isset($_GET['excelExport'])) {
+// Bu kısım excel çıktısı verir
+if(isset($_GET['excelExport']) && isset($_SESSION['veriSorumlusu']) && $_SESSION['veriSorumlusu']) {
     
     // File Name & Content Header For Download
     $file_name = 'YuinExcelExport-' . time() . '.xls';
@@ -447,7 +450,9 @@ unset($pdo);
 
 	<!-- Courses section -->
 	<section class="contact-page spad pt-0">
-		
+		        <?php
+		        if(isset($_SESSION['veriSorumlusu']) && $_SESSION['veriSorumlusu']) {
+		        ?>
 			
 				<div class="section-title text-center">
 					<h3>Üyeleri yönet</h3>
@@ -691,7 +696,17 @@ unset($pdo);
 				    ?>
 				    
 				</table>
-			
+			    <?php
+		        // Veri sorumlusu değilse ne olacak?
+		        }else{
+		        ?>
+		        <div class="section-title text-center">
+		            <h2 style="color:red;">Erişim Engellendi</h2>
+		            <p>Kişisel Verileri Koruma Kanunu kapsamında veri sorumlusu olmadığınız için bu sayfaya maalesef erişemezsiniz.</p>
+		        </div>
+		        <?php
+		        }
+		        ?>
 		
 	</section>
 	<!-- Courses section end-->
