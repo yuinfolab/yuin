@@ -139,7 +139,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(empty($error)) {
         
         $user = $kisisel['ogrenciNo'];
-        if($stmt = $pdo->prepare("SELECT users.uid, status, user, pass, veriSorumlu.veriSorumlusu FROM users INNER JOIN veriSorumlu ON users.uid=veriSorumlu.uid WHERE user = :user")) {
+        if($stmt = $pdo->prepare("SELECT users.uid, users.status, users.user, users.pass, (SELECT veriSorumlu.veriSorumlusu FROM veriSorumlu WHERE veriSorumlu.uid=users.uid) AS veriSorumlusu FROM users WHERE users.user = :user")) {
             
             // PDO parametrelerini ata
             $stmt->bindParam(":user", $user, PDO::PARAM_STR);
